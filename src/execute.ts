@@ -8,17 +8,12 @@ export async function execute(cwd: string, action: string): Promise<string> {
   return new Promise((resolve, reject) => {
     exec(action, { cwd }, (error, stdout, stderr) => {
 
-      if (stderr) {
-        console.error(`${Colors.FgRed}exec error: ${stderr}${Colors.Reset}`);
-        return reject(stderr);
-      }
-
       if (error !== null) {
-        console.error(`${Colors.FgRed}exec error: ${error}${Colors.Reset}`);
+        console.error(` 🛑  ${Colors.FgRed}${error}${Colors.Reset}`);
         return reject(error);
       }
 
-      console.info(stdout);
+      console.info(' ✅ ', stdout, `${Colors.FgYellow}${stderr}${Colors.Reset}`);
       resolve(stdout);
     });
   });

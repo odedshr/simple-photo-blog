@@ -46,10 +46,25 @@ export function getPostContent(post: Post, path: string): string {
   return post.items
     .map(item => isFileOfType(item, imageFileTypes)
       ? `<picture class="post_picture"><img class="post_image" src='${item}' /></picture>`
-      : `<div class="post_text">${readFileSync(`${path}/${item}`, 'utf-8')}</div>`)
+      : `<div class="post_text">${getTextContent(`${path}/${item}`)}</div>`)
     .join('\n')
 }
 
+
+function getTextContent(file: string) {
+  const content = readFileSync(`${file}`, 'utf-8')
+  switch (getFileType(file)) {
+    case 'txt': return content.replace(/\n/g, '<br/>');
+    case 'md': return content.replace(/\n/g, '<br/>');
+    default:
+    case 'txt': return content;
+  }
+}
+
+function getFileType(file: string) {
+  return extname(file).substr(1).toLowerCase();
+}
+
 function isFileOfType(file: string, types: string[]) {
-  return types.indexOf(extname(file).substr(1).toLowerCase()) !== -1
+  return types.indexOf(getFileType(file)) !== -1;
 }

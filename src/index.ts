@@ -1,7 +1,7 @@
 import { readdirSync, copyFileSync, existsSync, lstatSync, mkdirSync, writeFileSync, readFileSync } from 'fs';
 import { join } from 'path';
 
-import { Config, getConfig } from './config';
+import { getConfig } from './config';
 import { getPostMeta, getPostContent } from './get-post-meta';
 import { renderPost } from './render-post';
 import { renderIndex } from './render-index';
@@ -23,8 +23,7 @@ async function init() {
 
   const postTemplate = readFileSync(config.postTemplate, 'utf-8');
 
-  const posts = readdirSync(config.source)
-    .filter((item: string) => lstatSync(`${config.source}/${item}`).isDirectory())
+  const posts = getPostList(config.source, config.order === 'ascending')
     .map(getPostMeta.bind(null, config.source))
     .map(addTargetFolder.bind(null, config.target))
     .map(processPost.bind(null, postTemplate, config.source, config.overwrite));
@@ -42,13 +41,25 @@ async function init() {
   }
 
   if (config.execute && config.execute.length) {
-    await execute(config.cwd, config.execute)
+    await execute(config.cwd, config.execute).catch(err => err);
   }
 
-  console.info('==============================================================');
+  console.info('\n==============================================================');
 }
 
 // ================
+
+function getPostList(source: string, sortAscending: boolean) {
+  const files = readdirSync(source)
+    .filter((item: string) => lstatSync(`${source}/${item}`).isDirectory())
+    .sort();
+
+  if (!sortAscending) {
+    return files.reverse();
+  }
+
+  return files;
+}
 
 function addTargetFolder(targetPath: string, post: Post): Post {
   return {

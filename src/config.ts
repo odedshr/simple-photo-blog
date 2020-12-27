@@ -7,6 +7,7 @@ export type Config = {
   indexTemplate: string;
   postTemplate: string;
   overwrite: boolean;
+  order: 'ascending' | 'descending';
   versionFile?: string;
   execute: string;
   cwd: string;
@@ -18,6 +19,7 @@ const defaultConfig: Config = {
   target: 'www',
   indexTemplate: 'src/index-template.html',
   postTemplate: 'src/post-template.html',
+  order: 'ascending',
   overwrite: false,
   execute: ''
 }
@@ -104,7 +106,7 @@ function getDefaultIndexTemplate() {
   <title>My Simple Photo Blog</title>
 </head>
 
-<body><!-- content --></body>
+<body><ul class="posts"><!-- content --></ul></body>
 
 </html>`;
 }
