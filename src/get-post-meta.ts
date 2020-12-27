@@ -1,7 +1,14 @@
 import { statSync, readdirSync, readFileSync } from 'fs';
 import { extname } from 'path';
+//@ts-ignore as @types remarkable throws compilation errors regarding EOL highlight.js
+import { Remarkable } from 'remarkable';
 import { Post } from './Post';
 
+type MD = {
+  render(input: string): string;
+};
+
+const md: MD = new Remarkable();
 const imageFileTypes = ['jpg', 'png', 'gif'];
 const blogFileTypes = [...imageFileTypes, 'txt', 'md', 'html'];
 const pubDatePattern = /^\d{4}\-\d{2}-\d{2}/;
@@ -63,7 +70,7 @@ function getTextContent(file: string) {
   const content = readFileSync(`${file}`, 'utf-8')
   switch (getFileType(file)) {
     case 'txt': return content.replace(/\n/g, '<br/>');
-    case 'md': return content.replace(/\n/g, '<br/>');
+    case 'md': return md.render(content);
     default:
     case 'txt': return content;
   }
