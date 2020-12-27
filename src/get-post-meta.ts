@@ -45,11 +45,19 @@ export function getPostContent(post: Post, path: string): string {
 
   return post.items
     .map(item => isFileOfType(item, imageFileTypes)
-      ? `<picture class="post_picture"><img class="post_image" src='${item}' /></picture>`
+      ? getImageWithCaption(item)
       : `<div class="post_text">${getTextContent(`${path}/${item}`)}</div>`)
     .join('\n')
 }
 
+function getImageWithCaption(file: string) {
+  const [index, alt, caption] = file.substr(0, file.lastIndexOf('.'));
+  const captionTag = caption ? `<figcaption class="post_image_caption">${caption}</figcaption>` : '';
+  return `
+  <figure class="post_picture">
+    <img class="post_image" src="${file}" alt="${alt || index}"/>${captionTag}
+  </figure>`;
+}
 
 function getTextContent(file: string) {
   const content = readFileSync(`${file}`, 'utf-8')
