@@ -1,7 +1,0 @@
-source: src
-target: www
-indexTemplate: src/index-template.html
-postTemplate: src/post-template.html
-overwrite: false
-updateVersion: false
-execute: echo hello world
