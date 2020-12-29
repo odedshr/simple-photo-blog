@@ -11,7 +11,7 @@ type MD = {
 const md: MD = new Remarkable();
 const imageFileTypes = ['jpg', 'png', 'gif'];
 const blogFileTypes = [...imageFileTypes, 'txt', 'md', 'html'];
-const pubDatePattern = /^\d{4}\-\d{2}-\d{2}/;
+const pubDatePattern = /^\d{4}[\.\/-]\d{1,2}[\.\/-]\d{1,2}/;
 const tagsPattern = /#\S*/g;
 
 export function getPostMeta(parent: string, folder: string): Post {
@@ -48,21 +48,42 @@ function getDateFormFileStat(fullPathFilename: string) {
 }
 
 export function getPostContent(post: Post, path: string): string {
-  const { slug } = post;
+  const captionFiles = getCaptionsFiles(post.items, post.images);
+  const captionContent = getPotentialCaptions(path, captionFiles);
 
   return post.items
+    .filter(item => !captionFiles.includes(item))
     .map(item => isFileOfType(item, imageFileTypes)
-      ? getImageWithCaption(item)
+      ? getImageWithCaption(item, captionContent[item])
       : `<div class="post_text">${getTextContent(`${path}/${item}`)}</div>`)
     .join('\n')
 }
 
-function getImageWithCaption(file: string) {
-  const [index, alt, caption] = file.substr(0, file.lastIndexOf('.'));
+function getCaptionsFiles(items: string[], images: string[]): string[] {
+  return items
+    .filter(item =>
+      !images.includes(item) &&
+      images.includes(item.substr(0, item.lastIndexOf('.')))
+    );
+}
+
+function getPotentialCaptions(path: string, items: string[]) {
+  const captions: { [key: string]: string } = {};
+
+  items.forEach(item => {
+    captions[item.substr(0, item.lastIndexOf('.'))] = getTextContent(`${path}/${item}`);
+  });
+
+  return captions
+}
+
+function getImageWithCaption(file: string, caption?: string) {
   const captionTag = caption ? `<figcaption class="post_image_caption">${caption}</figcaption>` : '';
+  const altText = file.substr(0, file.lastIndexOf('.')).replace(/^\d+\s+/, '');
+
   return `
   <figure class="post_picture">
-    <img class="post_image" src="${file}" alt="${alt || index}"/>${captionTag}
+    <img class="post_image" src="${file}" alt="${altText}"/>${captionTag}
   </figure>`;
 }
 

@@ -29,7 +29,7 @@ export function getConfig(): Config | false {
   const configFile = join(cwd, 'blog-config.yaml');
 
   if (!existsSync(configFile)) {
-    console.error('⚠️  config.yaml missing, creating a default file');
+    console.error(' ⚠️  config.yaml missing, creating a default file');
     writeFileSync(configFile, toYaml(defaultConfig), 'utf-8');
   }
 
@@ -65,9 +65,18 @@ function toYaml(config: Config): string {
 function fromYaml(fileContent: string): Config {
   let config: any = {}
   fileContent.split('\n').map((line: string) => {
-    //@ts-ignore
-    const [, key, value] = line.match(/^(\w*): (.*)/);
-    config[key] = value;
+    if (!line.length) {
+      return;
+    }
+
+    try {
+      //@ts-ignore
+      const [, key, value] = line.match(/^(\w*): (.*)/);
+      config[key] = value;
+    }
+    catch (err) {
+      console.error(` ⚠️  Error parsing the config line '${line}': ${err}`);
+    }
   });
   return config as Config;
 }
