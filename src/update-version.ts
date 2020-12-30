@@ -8,13 +8,13 @@ export function updateVersion(filename: string) {
   const fileContent = readFileSync(filename, 'utf-8');
 
   try {
-    const packageJson = JSON.parse(fileContent);
-    const version = packageJson.version.split('.');
+    const jsonObject = JSON.parse(fileContent);
+    const version = jsonObject.version.split('.');
 
     version[2] = (+version[2]) + 1;
-    packageJson.version = version.join('.');
+    jsonObject.version = version.join('.');
 
-    writeFileSync(filename, JSON.stringify(packageJson, null, 2), 'utf-8');
+    writeFileSync(filename, JSON.stringify(jsonObject, null, 2), 'utf-8');
   } catch (err) {
     console.error(` ⚠️ failed to update version (${filename}):`, err);
     return;

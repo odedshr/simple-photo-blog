@@ -1,17 +1,7 @@
 import { existsSync, readFileSync, mkdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
 
-export type Config = {
-  source: string;
-  target: string;
-  indexTemplate: string;
-  postTemplate: string;
-  overwrite: boolean;
-  order: 'ascending' | 'descending';
-  versionFile?: string;
-  execute: string;
-  cwd: string;
-};
+import { Config } from './models/Config';
 
 const defaultConfig: Config = {
   cwd: '.',
@@ -24,12 +14,12 @@ const defaultConfig: Config = {
   execute: ''
 }
 
-export function getConfig(): Config | false {
-  const cwd = getWorkingDirectory();
+export function getConfig(cwd: string): Config | false {
   const configFile = join(cwd, 'blog-config.yaml');
 
   if (!existsSync(configFile)) {
     console.error(' ⚠️  config.yaml missing, creating a default file');
+    mkdirSync(cwd, { recursive: true });
     writeFileSync(configFile, toYaml(defaultConfig), 'utf-8');
   }
 
@@ -49,12 +39,6 @@ export function getConfig(): Config | false {
   return validateConfig(config) ? config : false;
 }
 
-function getWorkingDirectory() {
-  const path = process.argv[0].split('/');
-  path.pop();
-  return path.join('/')
-}
-
 function toYaml(config: Config): string {
   return Object.keys(config).map((key: string) => `${key}: ${
     //@ts-ignore
@@ -65,7 +49,7 @@ function toYaml(config: Config): string {
 function fromYaml(fileContent: string): Config {
   let config: any = {}
   fileContent.split('\n').map((line: string) => {
-    if (!line.length) {
+    if (!line.trim().length) {
       return;
     }
 
@@ -88,17 +72,17 @@ function validateConfig(config: Config) {
   }
 
   if (!existsSync(config.target)) {
-    console.info(` ⚠️  Creating target folder: ${config.target}`);
+    console.error(` ⚠️  Creating target folder: ${config.target}`);
     mkdirSync(config.target);
   }
 
   if (!existsSync(config.indexTemplate)) {
-    console.info(` ⚠️  Creating index template: ${config.target}`);
+    console.error(` ⚠️  Creating index template: ${config.indexTemplate}`);
     writeFileSync(config.indexTemplate, getDefaultIndexTemplate(), 'utf-8');
   }
 
   if (!existsSync(config.postTemplate)) {
-    console.info(` ⚠️  Creating post template: ${config.target}`);
+    console.error(` ⚠️  Creating post template: ${config.postTemplate}`);
     writeFileSync(config.postTemplate, getDefaultPostTemplate(), 'utf-8');
   }
 
@@ -111,11 +95,18 @@ function getDefaultIndexTemplate() {
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=1024, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>My Simple Photo Blog</title>
 </head>
 
-<body><ul class="posts"><!-- content --></ul></body>
+<body>
+  <header>
+    <h1>My Simple Photo Blog</h1>
+  </header>
+  <ul class="posts">
+    <!-- content -->
+  </ul>
+</body>
 
 </html>`;
 }
@@ -127,11 +118,19 @@ function getDefaultPostTemplate() {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><!-- title --></title>
+  <title>
+    <!-- title -->
+  </title>
 </head>
 
 <body>
-  <h2><!-- title --></h2>
+  <header>
+    <h1>My Simple Photo Blog</h1>
+  </header>
+
+  <h2>
+    <!-- title -->
+  </h2>
   <div class="pubDate">Published on
     <!-- pubDate -->
   </div>

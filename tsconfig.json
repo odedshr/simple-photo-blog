@@ -19,7 +19,13 @@
   },
   "files": [
     "src/index.ts",
-    "src/tests/config.test.ts"
+    "src/tests/config.test.ts",
+    "src/tests/execute.test.ts",
+    "src/tests/get-post-meta.test.ts",
+    "src/tests/render-index.test.ts",
+    "src/tests/render-post.test.ts",
+    "src/tests/update-version.test.ts",
+    "src/tests/simple-photo-blog.test.ts"
   ],
   "exclude": [
     "dist"

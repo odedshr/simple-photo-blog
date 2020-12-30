@@ -1,9 +1,9 @@
-import { Post } from './Post';
+import { Post } from './models/Post';
 
 const contentPlaceholder = /<!-- content -->/;
 
 export function renderIndex(template: string, posts: Post[]) {
-  return template
+  return (template || '')
     .replace(
       contentPlaceholder,
       posts.map(({ slug, images, title, pubDate, tags }) => `
