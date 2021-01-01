@@ -1,3 +1,11 @@
+export type PostElement = {
+  type: 'image' | 'video' | 'text',
+  link: string,
+  caption?: string;
+  alt?: string;
+  content?: string;
+}
+
 export type Post = {
   folder: string;
   title: string;
@@ -6,6 +14,6 @@ export type Post = {
   target: string;
   content?: string;
   tags: string[];
-  items: string[];
-  images: string[];
+  items: PostElement[];
+  attachments: PostElement[];
 };

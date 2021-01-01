@@ -13,7 +13,7 @@ describe('Simple Photo Blog', () => {
     deleteFolderRecursive(cwd);
   });
 
-  it(`shouldn't consider folder with no images as posts`, async () => {
+  it(`shouldn't consider folder with no binaries as posts`, async () => {
     mkdirSync(join(cwd, 'src', 'post-1'), { recursive: true });
     const origConsole = muteConsole();
     const config = getConfig(join(__dirname, 'compile-test'));

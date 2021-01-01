@@ -7,14 +7,14 @@ import { renderIndex } from './render-index';
 import { execute } from './execute';
 import { updateVersion } from './update-version';
 import { Config } from './models/Config';
-import { Post } from './models/Post';
+import { Post, PostElement } from './models/Post';
 
 export async function compile(config: Config) {
   const postTemplate = readFileSync(config.postTemplate, 'utf-8');
 
   const posts = getPostList(config.source, config.order === 'ascending')
     .map(getPostMeta.bind(null, config.source))
-    .filter(post => post.images.length)
+    .filter(post => post.attachments.length)
     .map(addTargetFolder.bind(null, config.target))
     .map(processPost.bind(null, postTemplate, config.source, config.overwrite));
 
@@ -65,7 +65,7 @@ function processPost(postTemplate: string, sourcePath: string, overwrite: boolea
   // if post didn't exist, copy its content
   if (overwrite || !isFolderExists) {
     !isFolderExists && mkdirSync(target);
-    copyPostImages(post.images, `${sourcePath}/${folder}`, target);
+    copyPostAttachments(post.attachments, `${sourcePath}/${folder}`, target);
   }
 
   // if post index didn't exist, create it
@@ -84,7 +84,11 @@ function processPost(postTemplate: string, sourcePath: string, overwrite: boolea
   return post;
 }
 
-function copyPostImages(images: string[], source: string, target: string) {
-  images
-    .forEach(image => copyFileSync(join(source, image), join(target, image)));
+function copyPostAttachments(attachments: PostElement[], source: string, target: string) {
+  attachments
+    .forEach(attachment => {
+      if (attachment.link.indexOf('//') == -1) {
+        copyFileSync(join(source, attachment.link), join(target, attachment.link));
+      }
+    });
 }

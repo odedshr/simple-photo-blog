@@ -12,7 +12,7 @@ describe('Render Post', () => {
       target: 'target1',
       tags: [],
       items: [],
-      images: ['image1.jpg']
+      attachments: [{ type: 'image', link: 'image1.jpg', alt: 'image1' }]
     });
 
     assert.strictEqual(result, '[title1,  pubDate1 ]');
@@ -28,7 +28,7 @@ describe('Render Post', () => {
       content: 'content2',
       tags: ['hashtag1', 'hashtag2'],
       items: [],
-      images: ['image2.jpg']
+      attachments: [{ type: 'image', link: 'image2.jpg', alt: 'image2' }]
     });
 
     assert.strictEqual(result, '[title2, content2 pubDate2 <li>hashtag1</li><li>hashtag2</li>]');

@@ -19,13 +19,13 @@
   },
   "files": [
     "src/index.ts",
-    "src/tests/config.test.ts",
-    "src/tests/execute.test.ts",
-    "src/tests/get-post-meta.test.ts",
-    "src/tests/render-index.test.ts",
-    "src/tests/render-post.test.ts",
-    "src/tests/update-version.test.ts",
-    "src/tests/simple-photo-blog.test.ts"
+    "src/tests/01-config.test.ts",
+    "src/tests/02-get-post-meta.test.ts",
+    "src/tests/03-render-post.test.ts",
+    "src/tests/04-render-index.test.ts",
+    "src/tests/05-update-version.test.ts",
+    "src/tests/06-execute.test.ts",
+    "src/tests/07-simple-photo-blog.test.ts"
   ],
   "exclude": [
     "dist"
