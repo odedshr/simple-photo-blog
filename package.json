@@ -25,6 +25,7 @@
   },
   "homepage": "https://github.com/odedshr/simple-photo-blog#readme",
   "dependencies": {
+    "jimp": "^0.16.1",
     "mocha": "^8.2.1",
     "nyc": "^15.1.0",
     "pkg": "^4.4.9",

@@ -1,5 +1,6 @@
 import { readdirSync, copyFileSync, existsSync, lstatSync, mkdirSync, writeFileSync, readFileSync } from 'fs';
 import { join } from 'path';
+import * as Jimp from 'jimp';
 
 import { getPostMeta, getPostContent } from './get-post-meta';
 import { renderPost } from './render-post';
@@ -12,11 +13,14 @@ import { Post, PostElement } from './models/Post';
 export async function compile(config: Config) {
   const postTemplate = readFileSync(config.postTemplate, 'utf-8');
 
-  const posts = getPostList(config.source, config.order === 'ascending')
+  const posts: Post[] = await Promise.all(getPostList(config.source, config.order === 'ascending')
     .map(getPostMeta.bind(null, config.source))
     .filter(post => post.attachments.length)
     .map(addTargetFolder.bind(null, config.target))
-    .map(processPost.bind(null, postTemplate, config.source, config.overwrite));
+    .map(
+      async post => processPost(postTemplate, config.source, config.overwrite, config.maxImageDimension, post)
+    )
+  );
 
   writeFileSync(
     `${config.target}/index.html`,
@@ -58,14 +62,14 @@ function addTargetFolder(targetPath: string, post: Post): Post {
   };
 }
 
-function processPost(postTemplate: string, sourcePath: string, overwrite: boolean, post: Post): Post {
+async function processPost(postTemplate: string, sourcePath: string, overwrite: boolean, maxImageDimension: number, post: Post): Promise<Post> {
   const { slug, target, folder } = post;
   const isFolderExists = existsSync(target);
 
   // if post didn't exist, copy its content
   if (overwrite || !isFolderExists) {
     !isFolderExists && mkdirSync(target);
-    copyPostAttachments(post.attachments, `${sourcePath}/${folder}`, target);
+    const updateCount = await copyPostAttachments(post.attachments, `${sourcePath}/${folder}`, target, maxImageDimension);
   }
 
   // if post index didn't exist, create it
@@ -84,11 +88,22 @@ function processPost(postTemplate: string, sourcePath: string, overwrite: boolea
   return post;
 }
 
-function copyPostAttachments(attachments: PostElement[], source: string, target: string) {
-  attachments
-    .forEach(attachment => {
-      if (attachment.link.indexOf('//') == -1) {
+async function copyPostAttachments(attachments: PostElement[], source: string, target: string, maxImageDimension: number) {
+  const updates = await Promise.all(attachments
+    .map(async attachment => {
+      if (attachment.link.indexOf('//') > -1) {
+        return 0;
+      }
+
+      if (attachment.type === 'image' && !attachment.link.match(/\.svg$/) && maxImageDimension) {
+        const image = await Jimp.read(join(source, attachment.link));
+        await image.scaleToFit(maxImageDimension, maxImageDimension).writeAsync(join(target, attachment.link));
+      } else {
         copyFileSync(join(source, attachment.link), join(target, attachment.link));
       }
-    });
+      return 1;
+    })
+  );
+
+  return updates.reduce((sum: number, i) => (sum + i), 0);
 }

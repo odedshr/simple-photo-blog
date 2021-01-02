@@ -1,5 +1,5 @@
 import * as assert from 'assert';
-import { mkdirSync, readFileSync, writeFileSync } from 'fs';
+import { mkdirSync, readFileSync, writeFileSync, copyFileSync, lstatSync, existsSync } from 'fs';
 import { join } from 'path';
 import { getConfig } from '../config';
 import { compile } from '../simple-photo-blog';
@@ -124,6 +124,27 @@ describe('Simple Photo Blog', () => {
     unmuteConsole(origConsole);
 
     assert.strictEqual(posts[0].title, 'post-1');
+  });
+
+  it(`should resize images`, async function () {
+    this.timeout(10000);
+
+    const origConsole = muteConsole();
+
+    makePost(cwd, 'src', '2020-01-01 post-1');
+    copyFileSync(join(__dirname, '../../var/test-image.jpg'), join(cwd, 'src', '2020-01-01 post-1', 'image.jpg'));
+    writeFileSync(join(cwd, 'blog-config.yaml'), 'overwrite: true', 'utf-8');
+    const config = getConfig(join(__dirname, 'compile-test'));
+
+    if (!config) {
+      assert.fail('failed to load config');
+    }
+
+    config.maxImageDimension = 300;
+    const posts = await compile(config);
+    unmuteConsole(origConsole);
+    assert.ok(existsSync(join(cwd, 'www', '2020-01-01-post-1', 'image.jpg')));
+    assert.strictEqual(lstatSync(join(cwd, 'www', '2020-01-01-post-1', 'image.jpg')).size, 65101);
   });
 });
 

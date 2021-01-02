@@ -1,4 +1,4 @@
-import { existsSync, writeFileSync, mkdirSync } from 'fs';
+import { existsSync, writeFileSync, mkdirSync, readFileSync } from 'fs';
 import { join } from 'path';
 import * as assert from 'assert';
 import { deleteFolderRecursive, deleteIfExists, muteConsole, unmuteConsole } from './utils';
@@ -38,6 +38,15 @@ describe('Config', () => {
     unmuteConsole(origConsole);
 
     assert.ok(existsSync(configFile));
+    assert.strictEqual(readFileSync(configFile, 'utf-8'), `cwd: .
+source: src
+target: www
+indexTemplate: src/index-template.html
+postTemplate: src/post-template.html
+order: ascending
+overwrite: false
+maxImageDimension: 0
+execute: `);
   });
 
   it('should return false if source folder not exists', () => {

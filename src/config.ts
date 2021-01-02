@@ -11,6 +11,7 @@ const defaultConfig: Config = {
   postTemplate: 'src/post-template.html',
   order: 'ascending',
   overwrite: false,
+  maxImageDimension: 0,
   execute: ''
 }
 
@@ -32,6 +33,7 @@ export function getConfig(cwd: string): Config | false {
     target: join(cwd, config.target),
     indexTemplate: join(cwd, config.indexTemplate),
     postTemplate: join(cwd, config.postTemplate),
+    maxImageDimension: +config.maxImageDimension || 0,
     overwrite: (config.overwrite as unknown as string) === 'true' || config.overwrite === true,
     versionFile: config.versionFile ? join(cwd, config.versionFile) : undefined
   }
