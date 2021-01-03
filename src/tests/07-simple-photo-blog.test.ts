@@ -126,27 +126,6 @@ describe('Simple Photo Blog', () => {
     assert.strictEqual(posts[0].title, 'post-1');
   });
 
-  it(`should resize images`, async function () {
-    this.timeout(10000);
-
-    const origConsole = muteConsole();
-
-    makePost(cwd, 'src', '2020-01-01 post-1');
-    copyFileSync(join(__dirname, '../../src/tests/test-image.jpg'), join(cwd, 'src', '2020-01-01 post-1', 'image.jpg'));
-    writeFileSync(join(cwd, 'blog-config.yaml'), 'overwrite: true', 'utf-8');
-    const config = getConfig(join(__dirname, 'compile-test'));
-
-    if (!config) {
-      assert.fail('failed to load config');
-    }
-
-    config.maxImageDimension = 300;
-    const posts = await compile(config);
-    unmuteConsole(origConsole);
-    assert.ok(existsSync(join(cwd, 'www', '2020-01-01-post-1', 'image.jpg')));
-    assert.strictEqual(lstatSync(join(cwd, 'www', '2020-01-01-post-1', 'image.jpg')).size, 65101);
-  });
-
   it(`shouldn't try to copy video links`, async function () {
     const origConsole = muteConsole();
 
@@ -162,6 +141,25 @@ describe('Simple Photo Blog', () => {
     const posts = await compile(config);
     unmuteConsole(origConsole);
     assert.ok(!existsSync(join(cwd, 'www', '2020-01-01-post-1', 'link.video.txt')));
+  });
+
+  it(`should resize images`, async function () {
+    this.timeout(10000);
+
+    const origConsole = muteConsole();
+
+    makePost(cwd, 'src', '2020-01-01 post-1');
+    copyFileSync(join(__dirname, '../../src/tests/test-image.jpg'), join(cwd, 'src', '2020-01-01 post-1', 'image.jpg'));
+    const config = getConfig(join(__dirname, 'compile-test'));
+
+    if (!config) {
+      assert.fail('failed to load config');
+    }
+
+    config.maxImageDimension = 300;
+    const posts = await compile(config);
+    unmuteConsole(origConsole);
+    assert.ok(existsSync(join(cwd, 'www', '2020-01-01-post-1', 'image.jpg')));
     assert.strictEqual(lstatSync(join(cwd, 'www', '2020-01-01-post-1', 'image.jpg')).size, 65101);
   });
 });

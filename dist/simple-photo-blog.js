@@ -63,7 +63,7 @@ function processPost(postTemplate, sourcePath, overwrite, maxImageDimension, pos
         // if post index didn't exist, create it
         if (overwrite || !fs_1.existsSync(`${target}/index.html`)) {
             console.info(`\n 💾 Writing ${slug}`);
-            const content = get_post_meta_1.getPostContent(post, path_1.join(sourcePath, folder));
+            const content = get_post_meta_1.getPostContent(post);
             fs_1.writeFileSync(`${target}/index.html`, render_post_1.renderPost(postTemplate, Object.assign(Object.assign({}, post), { content })), 'utf-8');
         }
         return post;
@@ -73,7 +73,7 @@ function copyPostAttachments(attachments, source, target, maxImageDimension) {
     return __awaiter(this, void 0, void 0, function* () {
         const updates = yield Promise.all(attachments
             .map((attachment) => __awaiter(this, void 0, void 0, function* () {
-            if (attachment.link.indexOf('//') > -1) {
+            if (attachment.link.match(/\.video\.txt$/)) {
                 return 0;
             }
             if (attachment.type === 'image' && !attachment.link.match(/\.svg$/) && maxImageDimension) {

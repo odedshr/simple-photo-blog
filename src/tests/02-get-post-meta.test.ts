@@ -36,27 +36,32 @@ function afterTest() {
   deleteFolderRecursive(postPath);
 }
 
-// describe('getPostMeta', () => {
-//   beforeEach(beforeTest);
-//   afterEach(afterTest);
+describe('getPostMeta', () => {
+  beforeEach(beforeTest);
+  afterEach(afterTest);
 
-//   it('should assign pubdDte automatically if not available', () => {
-//     const post = getPostMeta(__dirname, postName);
-//     assert.strictEqual(post.pubDate, (new Date()).toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }));
-//     assert.strictEqual(post.title, 'sample-post');
-//   });
+  it('should assign pubdDte automatically if not available', () => {
+    const post = getPostMeta(__dirname, postName);
+    assert.strictEqual(post.pubDate, (new Date()).toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }));
+    assert.strictEqual(post.title, 'sample-post');
+  });
 
-//   it('should assign pubDate from folder name', () => {
-//     const post = getPostMeta(__dirname, postName);
-//     assert.ok(post.pubDate, 'Wednesday, January 1, 2020');
-//   });
+  it('should assign pubDate from folder name', () => {
+    const post = getPostMeta(__dirname, postName);
+    assert.ok(post.pubDate, 'Wednesday, January 1, 2020');
+  });
 
-//   it('should get hashtags from title', () => {
-//     const post = getPostMeta(__dirname, postName);
-//     assert.strictEqual(post.title, 'sample-post');
-//     assert.strictEqual(post.tags.join(' '), '#hashtag1 #hashtag2');
-//   });
-// });
+  it('should get hashtags from title', () => {
+    const post = getPostMeta(__dirname, postName);
+    assert.strictEqual(post.title, 'sample-post');
+    assert.strictEqual(post.tags.join(' '), '#hashtag1 #hashtag2');
+  });
+
+  it('should get image caption', () => {
+    const post = getPostMeta(__dirname, postName);
+    assert.strictEqual(post.attachments[0].caption, 'this is my caption');
+  });
+});
 
 describe('getPostContent', () => {
   beforeEach(beforeTest);
@@ -64,9 +69,9 @@ describe('getPostContent', () => {
 
   it('should return post content', () => {
     assert.strictEqual(
-      getPostContent(getPostMeta(__dirname, postName), postPath), `
+      getPostContent(getPostMeta(__dirname, postName)), `
   <figure class="post_picture">
-    <img class="post_image" src="00 image1.jpg" alt="image1"/>
+    <img class="post_image" src="00 image1.jpg" alt="image1"/><figcaption class="post_image_caption">this is my caption</figcaption>
   </figure>
 <div class="post_text"><p>hello <em>foo</em></p>
 </div>
@@ -83,9 +88,9 @@ describe('getPostContent', () => {
     writeFileSync(join(postPath, '05 vide-file.mp4'), '', 'utf-8');
 
     assert.strictEqual(
-      getPostContent(getPostMeta(__dirname, postName), postPath), `
+      getPostContent(getPostMeta(__dirname, postName)), `
   <figure class="post_picture">
-    <img class="post_image" src="00 image1.jpg" alt="image1"/>
+    <img class="post_image" src="00 image1.jpg" alt="image1"/><figcaption class="post_image_caption">this is my caption</figcaption>
   </figure>
 <div class="post_text"><p>hello <em>foo</em></p>
 </div>

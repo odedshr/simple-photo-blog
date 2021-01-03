@@ -76,7 +76,7 @@ async function processPost(postTemplate: string, sourcePath: string, overwrite: 
   if (overwrite || !existsSync(`${target}/index.html`)) {
     console.info(`\n 💾 Writing ${slug}`);
 
-    const content = getPostContent(post, join(sourcePath, folder));
+    const content = getPostContent(post);
 
     writeFileSync(
       `${target}/index.html`,
@@ -91,7 +91,7 @@ async function processPost(postTemplate: string, sourcePath: string, overwrite: 
 async function copyPostAttachments(attachments: PostElement[], source: string, target: string, maxImageDimension: number) {
   const updates = await Promise.all(attachments
     .map(async attachment => {
-      if (attachment.link.indexOf('//') > -1) {
+      if (attachment.link.match(/\.video\.txt$/)) {
         return 0;
       }
 

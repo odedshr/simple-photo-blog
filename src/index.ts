@@ -1,17 +1,21 @@
 import { compile } from './simple-photo-blog';
 import { getConfig } from './config';
 
-console.info('==============================================================');
-
-const config = getConfig(getWorkingDirectory());
-
-if (config) {
-  compile(config);
-}
-
-console.info('==============================================================');
+execute();
 
 // ================
+
+async function execute() {
+  console.info('==============================================================');
+
+  const config = getConfig(getWorkingDirectory());
+
+  if (config) {
+    await compile(config);
+  }
+
+  console.info('==============================================================');
+}
 
 function getWorkingDirectory() {
   const [executable, jsFile] = process.argv;

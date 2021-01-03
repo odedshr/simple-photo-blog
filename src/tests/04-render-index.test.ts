@@ -45,7 +45,7 @@ describe('Render Index', () => {
   <li class="post">
     <a href="slug1" class="post_picture">
   <figure class="post_picture">
-    <img class="post_image" src="image1.jpg" alt="image1"/>
+    <img class="post_image" src="slug1/image1.jpg" alt="image1"/>
   </figure></a>
     <a class="post_title" href="slug1">title1</a>
     <span class="post_pubDate">pubDate1</span>
@@ -55,7 +55,7 @@ describe('Render Index', () => {
   <li class="post">
     <a href="slug2" class="post_picture">
   <video class="post_video" controls>
-    <source src="movie1.mov" type="video/mp4">
+    <source src="slug2/movie1.mov" type="video/mp4">
     😢 Your browser does not support the video tag.
   </video></a>
     <a class="post_title" href="slug2">title2</a>

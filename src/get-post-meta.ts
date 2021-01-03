@@ -23,7 +23,9 @@ export function getPostMeta(parent: string, folder: string): Post {
     .filter(item => item.type === 'image' || item.type === 'video');
   const captionFiles = filterCaptionElements(items, attachments);
   const captionContent = getCaptionMap(captionFiles);
-  const itemsWithoutCaptions = items.filter(item => !captionFiles.includes(item));
+  const itemsWithoutCaptions = items
+    .filter(item => !captionFiles.includes(item))
+    .map(item => ({ ...item, caption: captionContent[item.link] }));
   const attachmentsWithCaptions = attachments.map(item => ({ ...item, caption: captionContent[item.link] }));
 
   return {
@@ -105,39 +107,36 @@ function getDateFromFileState(fullPathFilename: string) {
   return formatDate(statSync(fullPathFilename).ctime);
 }
 
-export function getPostContent(post: Post, path: string): string {
-  const captionFiles = filterCaptionElements(post.items, post.attachments);
-  const captionContent = getCaptionMap(captionFiles);
-
+export function getPostContent(post: Post): string {
   return post.items
-    .filter(item => !captionFiles.includes(item))
-    .map(item => getItemContent(path, item))
+    .map(item => getItemContent(item))
     .join('\n')
 }
 
-export function getItemContent(path: string, item: PostElement) {
+export function getItemContent(item: PostElement, slug?: string) {
   if (item.type === 'image') {
-    return getImageTag(item);
+    return getImageTag(item, slug);
   } else if (item.type === 'video') {
-    return getVideoTag(item);
+    return getVideoTag(item, slug);
   }
 
   return `<div class="post_text">${item.content}</div>`;
 }
 
-function getImageTag(element: PostElement) {
+function getImageTag(element: PostElement, slug?: string) {
   const captionTag = element.caption ? `<figcaption class="post_image_caption">${element.caption}</figcaption>` : '';
-
+  const link = slug ? `${slug}/${element.link}` : element.link
   return `
   <figure class="post_picture">
-    <img class="post_image" src="${element.link}" alt="${element.alt}"/>${captionTag}
+    <img class="post_image" src="${link}" alt="${element.alt}"/>${captionTag}
   </figure>`;
 }
 
-export function getVideoTag(element: PostElement) {
+export function getVideoTag(element: PostElement, slug?: string) {
+  const link = (slug && element.link.indexOf('//') === -1) ? `${slug}/${element.link}` : element.link
   return `
   <video class="post_video" controls>
-    <source src="${element.link}" type="video/mp4">
+    <source src="${link}" type="video/mp4">
     😢 Your browser does not support the video tag.
   </video>`;
 }
