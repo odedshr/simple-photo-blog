@@ -14,7 +14,13 @@ console.info('==============================================================');
 // ================
 
 function getWorkingDirectory() {
-  const path = process.argv[0].split('/');
-  path.pop();
-  return path.join('/')
+  const [executable, jsFile] = process.argv;
+
+  if (jsFile === '/snapshot/dist/index.js') {
+    const path = executable.split('/');
+    path.pop();
+    return path.join('/')
+  }
+
+  return process.cwd();
 }
