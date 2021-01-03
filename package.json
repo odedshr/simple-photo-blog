@@ -1,6 +1,6 @@
 {
   "name": "simple-photo-blog",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "The simplest way to maintain a photo blog",
   "main": "dist/index.js",
   "scripts": {
