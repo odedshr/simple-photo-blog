@@ -21,11 +21,12 @@ const update_version_1 = require("./update-version");
 function compile(config) {
     return __awaiter(this, void 0, void 0, function* () {
         const postTemplate = fs_1.readFileSync(config.postTemplate, 'utf-8');
+        const templateModified = fs_1.lstatSync(config.postTemplate).mtime;
+        const lastModify = new Date(Math.max(templateModified.getTime(), config.modified.getTime()));
         const posts = yield Promise.all(getPostList(config.source, config.order === 'ascending')
             .map(get_post_meta_1.getPostMeta.bind(null, config.source))
             .filter(post => post.attachments.length)
-            .map(addTargetFolder.bind(null, config.target))
-            .map((post) => __awaiter(this, void 0, void 0, function* () { return processPost(postTemplate, config.source, config.overwrite, config.maxImageDimension, post); })));
+            .map((post) => __awaiter(this, void 0, void 0, function* () { return processPost(postTemplate, config.source, config.target, config.maxImageDimension, lastModify, post); })));
         fs_1.writeFileSync(`${config.target}/index.html`, render_index_1.renderIndex(fs_1.readFileSync(config.indexTemplate, 'utf-8'), posts), 'utf-8');
         console.info(`\n ✅ Indexing complete for ${posts.length} posts`);
         if (config.versionFile) {
@@ -48,26 +49,42 @@ function getPostList(source, sortAscending) {
     }
     return files;
 }
-function addTargetFolder(targetPath, post) {
-    return Object.assign(Object.assign({}, post), { target: `${targetPath}/${post.slug}` });
-}
-function processPost(postTemplate, sourcePath, overwrite, maxImageDimension, post) {
+function processPost(postTemplate, sourcePath, targetPath, maxImageDimension, expirationDate, post) {
     return __awaiter(this, void 0, void 0, function* () {
-        const { slug, target, folder } = post;
-        const isFolderExists = fs_1.existsSync(target);
-        // if post didn't exist, copy its content
-        if (overwrite || !isFolderExists) {
-            !isFolderExists && fs_1.mkdirSync(target);
-            const updateCount = yield copyPostAttachments(post.attachments, `${sourcePath}/${folder}`, target, maxImageDimension);
-        }
+        const { slug, folder } = post;
+        const source = `${sourcePath}/${folder}`;
+        const target = `${targetPath}/${slug}`;
+        const postFile = `${target}/index.html`;
+        const folderRequiresUpdate = isFolderRequireUpdate(source, target, expirationDate);
+        const postModifyTime = getFileModifyDate(postFile);
         // if post index didn't exist, create it
-        if (overwrite || !fs_1.existsSync(`${target}/index.html`)) {
-            console.info(`\n 💾 Writing ${slug}`);
+        if (!folderRequiresUpdate) {
+            console.info(`\n ✓ Skipping ${slug}`);
+            return post;
+        }
+        console.info(`\n 💾 Writing ${slug}`);
+        !fs_1.existsSync(target) && fs_1.mkdirSync(target);
+        yield copyPostAttachments(post.attachments, source, target, maxImageDimension);
+        if (!postModifyTime || postModifyTime > expirationDate) {
             const content = get_post_meta_1.getPostContent(post);
-            fs_1.writeFileSync(`${target}/index.html`, render_post_1.renderPost(postTemplate, Object.assign(Object.assign({}, post), { content })), 'utf-8');
+            fs_1.writeFileSync(`${target}/index.html`, render_post_1.renderPost(postTemplate, post, content), 'utf-8');
         }
         return post;
     });
+}
+function isFolderRequireUpdate(source, target, expirationDate) {
+    const sourceModifyTime = getFileModifyDate(source);
+    const targetModifyTime = getFileModifyDate(target);
+    return !targetModifyTime ||
+        targetModifyTime.getTime() < expirationDate.getTime() ||
+        !sourceModifyTime ||
+        sourceModifyTime.getTime() > targetModifyTime.getTime();
+}
+function getFileModifyDate(file) {
+    if (fs_1.existsSync(file)) {
+        return fs_1.lstatSync(file).mtime;
+    }
+    return false;
 }
 function copyPostAttachments(attachments, source, target, maxImageDimension) {
     return __awaiter(this, void 0, void 0, function* () {

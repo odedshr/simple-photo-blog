@@ -3,8 +3,6 @@ import { getConfig } from './config';
 
 execute();
 
-// ================
-
 async function execute() {
   console.info('==============================================================');
 
@@ -20,7 +18,7 @@ async function execute() {
 function getWorkingDirectory() {
   const [executable, jsFile] = process.argv;
 
-  if (jsFile === '/snapshot/dist/index.js') {
+  if (jsFile === '/snapshot/bin/upload.js') {
     const path = executable.split('/');
     path.pop();
     return path.join('/')

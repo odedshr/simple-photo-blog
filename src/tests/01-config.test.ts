@@ -44,7 +44,6 @@ target: www
 indexTemplate: src/index-template.html
 postTemplate: src/post-template.html
 order: ascending
-overwrite: false
 maxImageDimension: 0
 execute: `);
   });
@@ -109,10 +108,9 @@ postTemplate: src/post-template.html`, 'utf-8');
     unmuteConsole(origConsole);
 
     assert.ok(config && config.order === 'ascending');
-    assert.ok(config && config.overwrite === false);
   });
 
-  it('should add convert overwrite string value to boolean', () => {
+  it('should add modified Date', () => {
     !existsSync(fullPathConfig.src) && mkdirSync(fullPathConfig.src);
     writeFileSync(configFile, `overwrite: true`, 'utf-8');
 
@@ -120,7 +118,8 @@ postTemplate: src/post-template.html`, 'utf-8');
     const config = getConfig(__dirname);
     unmuteConsole(origConsole);
 
-    assert.ok(config && config.overwrite === true);
+    assert.ok(config);
+    assert.ok((new Date()).getTime() - config.modified.getTime() < 200);
   });
 
 

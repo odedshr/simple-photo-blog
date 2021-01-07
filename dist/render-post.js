@@ -5,8 +5,8 @@ const titlePlaceholder = /<!-- title -->/g;
 const contentPlaceholder = '<!-- content -->';
 const pubDatePlaceholder = '<!-- pubDate -->';
 const tagsPlaceHolder = '<!-- tags -->';
-function renderPost(template, post) {
-    const { title, content, pubDate, tags } = post;
+function renderPost(template, post, content) {
+    const { title, pubDate, tags } = post;
     return template
         .replace(titlePlaceholder, title)
         .replace(contentPlaceholder, content || '')

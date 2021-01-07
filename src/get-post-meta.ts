@@ -1,4 +1,4 @@
-import { statSync, readdirSync, readFileSync } from 'fs';
+import { lstatSync, readdirSync, readFileSync } from 'fs';
 import { extname, join } from 'path';
 //@ts-ignore as @types remarkable throws compilation errors regarding EOL highlight.js
 import { Remarkable } from 'remarkable';
@@ -27,13 +27,14 @@ export function getPostMeta(parent: string, folder: string): Post {
     .filter(item => !captionFiles.includes(item))
     .map(item => ({ ...item, caption: captionContent[item.link] }));
   const attachmentsWithCaptions = attachments.map(item => ({ ...item, caption: captionContent[item.link] }));
+  const modified = lstatSync(source).mtime
 
   return {
     folder,
-    target: '',
+    modified,
     title: folder.replace(tagsPattern, '').replace(pubDatePattern, '').trim(),
     slug: folder.replace(tagsPattern, '').trim().replace(/\s/g, '-').toLowerCase(),
-    pubDate: getDateFromName(folder) || getDateFromFileState(source),
+    pubDate: getDateFromName(folder) || formatDate(modified),
     tags: folder.match(tagsPattern) || [],
     items: itemsWithoutCaptions,
     attachments: attachmentsWithCaptions
@@ -54,7 +55,7 @@ function getCaptionMap(items: PostElement[]) {
   const captions: { [key: string]: string } = {};
 
   items.forEach(item => {
-    captions[item.link.substr(0, item.link.lastIndexOf('.'))] = item.content || '';
+    captions[item.link.substr(0, item.link.lastIndexOf('.'))] = item.source ? getTextContent(item.source) : '';
   });
 
   return captions
@@ -90,7 +91,7 @@ function toPostElements(source: string, link: string): PostElement {
   return {
     link,
     type: 'text',
-    content: getTextContent(join(source, link))
+    source: join(source, link)
   };
 }
 
@@ -101,10 +102,6 @@ function formatDate(date: Date) {
 function getDateFromName(name: string) {
   const match = name.match(pubDatePattern);
   return match ? formatDate(new Date(match[0])) : null;
-}
-
-function getDateFromFileState(fullPathFilename: string) {
-  return formatDate(statSync(fullPathFilename).ctime);
 }
 
 export function getPostContent(post: Post): string {
@@ -120,7 +117,7 @@ export function getItemContent(item: PostElement, slug?: string) {
     return getVideoTag(item, slug);
   }
 
-  return `<div class="post_text">${item.content}</div>`;
+  return `<div class="post_text">${getTextContent(join(item.source || ''))}</div>`;
 }
 
 function getImageTag(element: PostElement, slug?: string) {

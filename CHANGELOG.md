@@ -13,8 +13,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial version
 
-## [1.0.1] - 2020-06-17
+## [1.0.1] - 2020-01-03
 
 ### Fixed
 
 - captions in post/index.html
+
+## [1.0.2] - 2020-01-07
+### Added
+
+- Added Webpack to minify executable
+- Removed 'overwrite' flag in favour of auto-detect updates

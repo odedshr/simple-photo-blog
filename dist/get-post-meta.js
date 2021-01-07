@@ -23,12 +23,13 @@ function getPostMeta(parent, folder) {
         .filter(item => !captionFiles.includes(item))
         .map(item => (Object.assign(Object.assign({}, item), { caption: captionContent[item.link] })));
     const attachmentsWithCaptions = attachments.map(item => (Object.assign(Object.assign({}, item), { caption: captionContent[item.link] })));
+    const modified = fs_1.lstatSync(source).mtime;
     return {
         folder,
-        target: '',
+        modified,
         title: folder.replace(tagsPattern, '').replace(pubDatePattern, '').trim(),
         slug: folder.replace(tagsPattern, '').trim().replace(/\s/g, '-').toLowerCase(),
-        pubDate: getDateFromName(folder) || getDateFromFileState(source),
+        pubDate: getDateFromName(folder) || formatDate(modified),
         tags: folder.match(tagsPattern) || [],
         items: itemsWithoutCaptions,
         attachments: attachmentsWithCaptions
@@ -44,7 +45,7 @@ function filterCaptionElements(items, attachments) {
 function getCaptionMap(items) {
     const captions = {};
     items.forEach(item => {
-        captions[item.link.substr(0, item.link.lastIndexOf('.'))] = item.content || '';
+        captions[item.link.substr(0, item.link.lastIndexOf('.'))] = item.source ? getTextContent(item.source) : '';
     });
     return captions;
 }
@@ -77,7 +78,7 @@ function toPostElements(source, link) {
     return {
         link,
         type: 'text',
-        content: getTextContent(path_1.join(source, link))
+        source: path_1.join(source, link)
     };
 }
 function formatDate(date) {
@@ -86,9 +87,6 @@ function formatDate(date) {
 function getDateFromName(name) {
     const match = name.match(pubDatePattern);
     return match ? formatDate(new Date(match[0])) : null;
-}
-function getDateFromFileState(fullPathFilename) {
-    return formatDate(fs_1.statSync(fullPathFilename).ctime);
 }
 function getPostContent(post) {
     return post.items
@@ -103,7 +101,7 @@ function getItemContent(item, slug) {
     else if (item.type === 'video') {
         return getVideoTag(item, slug);
     }
-    return `<div class="post_text">${item.content}</div>`;
+    return `<div class="post_text">${getTextContent(path_1.join(item.source || ''))}</div>`;
 }
 exports.getItemContent = getItemContent;
 function getImageTag(element, slug) {

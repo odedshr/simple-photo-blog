@@ -12,13 +12,14 @@ import { Post, PostElement } from './models/Post';
 
 export async function compile(config: Config) {
   const postTemplate = readFileSync(config.postTemplate, 'utf-8');
+  const templateModified = lstatSync(config.postTemplate).mtime
+  const lastModify = new Date(Math.max(templateModified.getTime(), config.modified.getTime()));
 
   const posts: Post[] = await Promise.all(getPostList(config.source, config.order === 'ascending')
     .map(getPostMeta.bind(null, config.source))
     .filter(post => post.attachments.length)
-    .map(addTargetFolder.bind(null, config.target))
     .map(
-      async post => processPost(postTemplate, config.source, config.overwrite, config.maxImageDimension, post)
+      async post => processPost(postTemplate, config.source, config.target, config.maxImageDimension, lastModify, post)
     )
   );
 
@@ -55,37 +56,61 @@ function getPostList(source: string, sortAscending: boolean) {
   return files;
 }
 
-function addTargetFolder(targetPath: string, post: Post): Post {
-  return {
-    ...post,
-    target: `${targetPath}/${post.slug}`
-  };
-}
+async function processPost(
+  postTemplate: string,
+  sourcePath: string,
+  targetPath: string,
+  maxImageDimension: number,
+  expirationDate: Date,
+  post: Post
+): Promise<Post> {
+  const { slug, folder } = post;
+  const source = `${sourcePath}/${folder}`;
+  const target = `${targetPath}/${slug}`;
+  const postFile = `${target}/index.html`;
+  const folderRequiresUpdate = isFolderRequireUpdate(source, target, expirationDate);
+  const postModifyTime = getFileModifyDate(postFile);
+  // if post index didn't exist, create it
 
-async function processPost(postTemplate: string, sourcePath: string, overwrite: boolean, maxImageDimension: number, post: Post): Promise<Post> {
-  const { slug, target, folder } = post;
-  const isFolderExists = existsSync(target);
-
-  // if post didn't exist, copy its content
-  if (overwrite || !isFolderExists) {
-    !isFolderExists && mkdirSync(target);
-    const updateCount = await copyPostAttachments(post.attachments, `${sourcePath}/${folder}`, target, maxImageDimension);
+  if (!folderRequiresUpdate) {
+    console.info(`\n ✓ Skipping ${slug}`);
+    return post;
   }
 
-  // if post index didn't exist, create it
-  if (overwrite || !existsSync(`${target}/index.html`)) {
-    console.info(`\n 💾 Writing ${slug}`);
+  console.info(`\n 💾 Writing ${slug}`);
 
+  !existsSync(target) && mkdirSync(target);
+  await copyPostAttachments(post.attachments, source, target, maxImageDimension);
+
+  if (!postModifyTime || postModifyTime > expirationDate) {
     const content = getPostContent(post);
 
     writeFileSync(
       `${target}/index.html`,
-      renderPost(postTemplate, { ...post, content }),
+      renderPost(postTemplate, post, content),
       'utf-8'
     );
   }
 
   return post;
+}
+
+function isFolderRequireUpdate(source: string, target: string, expirationDate: Date) {
+  const sourceModifyTime = getFileModifyDate(source);
+  const targetModifyTime = getFileModifyDate(target);
+
+  return !targetModifyTime ||
+    targetModifyTime.getTime() < expirationDate.getTime() ||
+    !sourceModifyTime ||
+    sourceModifyTime.getTime() > targetModifyTime.getTime();
+}
+
+function getFileModifyDate(file: string) {
+  if (existsSync(file)) {
+    return lstatSync(file).mtime;
+  }
+
+  return false;
 }
 
 async function copyPostAttachments(attachments: PostElement[], source: string, target: string, maxImageDimension: number) {

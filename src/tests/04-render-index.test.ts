@@ -3,13 +3,12 @@ import { renderIndex } from '../render-index';
 
 describe('Render Index', () => {
   it('should render index page template', async () => {
-    //@ts-expect-error
-    const result = renderIndex(undefined, [{
+    const result = renderIndex('', [{
       folder: '',
+      modified: new Date(2020, 1, 1),
       title: 'title1',
       slug: 'slug1',
       pubDate: 'pubDate1',
-      target: 'target1',
       tags: [],
       items: [],
       attachments: [{ type: 'image', link: 'image1.jpg', alt: 'image1' }]
@@ -21,20 +20,20 @@ describe('Render Index', () => {
     const result = renderIndex('[<!-- content -->]', [
       {
         folder: '',
+        modified: new Date(2020, 1, 1),
         title: 'title1',
         slug: 'slug1',
         pubDate: 'pubDate1',
-        target: 'target1',
         tags: [],
         items: [],
         attachments: [{ type: 'image', link: 'image1.jpg', alt: 'image1' }]
       },
       {
         folder: '',
+        modified: new Date(2020, 1, 1),
         title: 'title2',
         slug: 'slug2',
         pubDate: 'pubDate2',
-        target: 'target2',
         tags: ['hashtag1', 'hashtag2'],
         items: [],
         attachments: [{ type: 'video', link: 'movie1.mov' }]

@@ -1,9 +1,9 @@
 export declare type Config = {
+    modified: Date;
     source: string;
     target: string;
     indexTemplate: string;
     postTemplate: string;
-    overwrite: boolean;
     order: 'ascending' | 'descending';
     maxImageDimension: number;
     versionFile?: string;

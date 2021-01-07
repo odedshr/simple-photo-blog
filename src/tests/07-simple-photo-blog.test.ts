@@ -162,9 +162,73 @@ describe('Simple Photo Blog', () => {
     assert.ok(existsSync(join(cwd, 'www', '2020-01-01-post-1', 'image.jpg')));
     assert.strictEqual(lstatSync(join(cwd, 'www', '2020-01-01-post-1', 'image.jpg')).size, 65101);
   });
+
+  it(`should update only newer content`, async function () {
+    this.timeout(3000);
+
+    makePost(cwd, 'src', '2020-01-01 static');
+    makePost(cwd, 'src', '2020-01-01 updating');
+    const origConsole = muteConsole();
+    const config = getConfig(join(__dirname, 'compile-test'));
+
+    if (!config) {
+      assert.fail('failed to load config');
+    }
+    await compile(config);
+    const staticDate = lstatSync(join(cwd, 'www', '2020-01-01-static')).mtime;
+    const updatingDate = lstatSync(join(cwd, 'www', '2020-01-01-updating')).mtime;
+
+    await wait(1000);
+    writeFileSync(join(cwd, 'src', '2020-01-01 updating', 'image1.jpg'), 'y', 'utf-8');
+    await compile(config);
+
+    unmuteConsole(origConsole);
+    assert.ok(staticDate.getTime() === lstatSync(join(cwd, 'www', '2020-01-01-static')).mtime.getTime());
+    assert.ok(updatingDate.getTime() < lstatSync(join(cwd, 'www', '2020-01-01-updating')).mtime.getTime());
+  });
+
+  it(`should update content if index template is newer`, async function () {
+    testFileUpdate(cwd, 'src/index-template.html', 'index.html');
+  });
+
+  it(`should update content if post template is newer`, async function () {
+    testFileUpdate(cwd, 'src/post-template.html', '2020-01-01-updating');
+  });
 });
+
+
+async function wait(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 function makePost(cwd: string, target: string, postName: string) {
   mkdirSync(join(cwd, target, postName), { recursive: true });
   writeFileSync(join(cwd, target, postName, 'image.jpg'), 'x', 'utf-8');
+}
+
+async function testFileUpdate(cwd: string, fileToUpdate: string, fileToTest: string) {
+  makePost(cwd, 'src', '2020-01-01 updating');
+
+  const origConsole = muteConsole();
+  let config = getConfig(join(__dirname, 'compile-test'));
+
+  if (!config) {
+    assert.fail('failed to load config');
+  }
+
+  await compile(config);
+  const updatingDate = lstatSync(join(cwd, 'www', fileToTest)).mtime;
+
+  await wait(1000);
+
+  writeFileSync(join(cwd, fileToUpdate), 'xxx', 'utf-8');
+  config = getConfig(join(__dirname, 'compile-test'));
+
+  if (!config) {
+    assert.fail('failed to load config');
+  }
+  await compile(config);
+  unmuteConsole(origConsole);
+
+  assert.ok(updatingDate.getTime() < lstatSync(join(cwd, 'www', fileToTest)).mtime.getTime());
 }

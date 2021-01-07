@@ -12,7 +12,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const simple_photo_blog_1 = require("./simple-photo-blog");
 const config_1 = require("./config");
 execute();
-// ================
 function execute() {
     return __awaiter(this, void 0, void 0, function* () {
         console.info('==============================================================');
@@ -25,7 +24,7 @@ function execute() {
 }
 function getWorkingDirectory() {
     const [executable, jsFile] = process.argv;
-    if (jsFile === '/snapshot/dist/index.js') {
+    if (jsFile === '/snapshot/bin/upload.js') {
         const path = executable.split('/');
         path.pop();
         return path.join('/');

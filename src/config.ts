@@ -1,16 +1,15 @@
-import { existsSync, readFileSync, mkdirSync, writeFileSync } from 'fs';
+import { existsSync, readFileSync, mkdirSync, writeFileSync, lstatSync } from 'fs';
 import { join } from 'path';
 
 import { Config } from './models/Config';
 
-const defaultConfig: Config = {
+const defaultConfig: Partial<Config> = {
   cwd: '.',
   source: 'src',
   target: 'www',
   indexTemplate: 'src/index-template.html',
   postTemplate: 'src/post-template.html',
   order: 'ascending',
-  overwrite: false,
   maxImageDimension: 0,
   execute: ''
 }
@@ -24,24 +23,34 @@ export function getConfig(cwd: string): Config | false {
     writeFileSync(configFile, toYaml(defaultConfig), 'utf-8');
   }
 
-  let config = { ...defaultConfig, ...fromYaml(readFileSync(configFile, 'utf-8')) }
+  let config: Config = { ...defaultConfig, ...fromYaml(readFileSync(configFile, 'utf-8')) };
+  const indexTemplate = join(cwd, config.indexTemplate);
+  const postTemplate = join(cwd, config.postTemplate)
 
   config = {
-    ...config,
+    modified: new Date(),
     cwd,
     source: join(cwd, config.source),
     target: join(cwd, config.target),
-    indexTemplate: join(cwd, config.indexTemplate),
-    postTemplate: join(cwd, config.postTemplate),
+    indexTemplate,
+    postTemplate,
     maxImageDimension: +config.maxImageDimension || 0,
-    overwrite: (config.overwrite as unknown as string) === 'true' || config.overwrite === true,
-    versionFile: config.versionFile ? join(cwd, config.versionFile) : undefined
+    versionFile: config.versionFile ? join(cwd, config.versionFile) : undefined,
+    order: config.order,
+    execute: config.execute
   }
 
-  return validateConfig(config) ? config : false;
+  return validateConfig(config) ? {
+    ...config,
+    modified: getLatestFileModify(indexTemplate, postTemplate, configFile)
+  } : false;
 }
 
-function toYaml(config: Config): string {
+function getLatestFileModify(...files: string[]) {
+  return new Date(Math.max(...files.map(file => lstatSync(file).mtime.getTime())));
+}
+
+function toYaml(config: Partial<Config>): string {
   return Object.keys(config).map((key: string) => `${key}: ${
     //@ts-ignore
     config[key]

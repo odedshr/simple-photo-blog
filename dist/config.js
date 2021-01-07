@@ -10,7 +10,6 @@ const defaultConfig = {
     indexTemplate: 'src/index-template.html',
     postTemplate: 'src/post-template.html',
     order: 'ascending',
-    overwrite: false,
     maxImageDimension: 0,
     execute: ''
 };
@@ -22,10 +21,26 @@ function getConfig(cwd) {
         fs_1.writeFileSync(configFile, toYaml(defaultConfig), 'utf-8');
     }
     let config = Object.assign(Object.assign({}, defaultConfig), fromYaml(fs_1.readFileSync(configFile, 'utf-8')));
-    config = Object.assign(Object.assign({}, config), { cwd, source: path_1.join(cwd, config.source), target: path_1.join(cwd, config.target), indexTemplate: path_1.join(cwd, config.indexTemplate), postTemplate: path_1.join(cwd, config.postTemplate), maxImageDimension: +config.maxImageDimension || 0, overwrite: config.overwrite === 'true' || config.overwrite === true, versionFile: config.versionFile ? path_1.join(cwd, config.versionFile) : undefined });
-    return validateConfig(config) ? config : false;
+    const indexTemplate = path_1.join(cwd, config.indexTemplate);
+    const postTemplate = path_1.join(cwd, config.postTemplate);
+    config = {
+        modified: new Date(),
+        cwd,
+        source: path_1.join(cwd, config.source),
+        target: path_1.join(cwd, config.target),
+        indexTemplate,
+        postTemplate,
+        maxImageDimension: +config.maxImageDimension || 0,
+        versionFile: config.versionFile ? path_1.join(cwd, config.versionFile) : undefined,
+        order: config.order,
+        execute: config.execute
+    };
+    return validateConfig(config) ? Object.assign(Object.assign({}, config), { modified: getLatestFileModify(indexTemplate, postTemplate, configFile) }) : false;
 }
 exports.getConfig = getConfig;
+function getLatestFileModify(...files) {
+    return new Date(Math.max(...files.map(file => fs_1.lstatSync(file).mtime.getTime())));
+}
 function toYaml(config) {
     return Object.keys(config).map((key) => `${key}: ${
     //@ts-ignore
