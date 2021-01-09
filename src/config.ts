@@ -4,14 +4,14 @@ import { join } from 'path';
 import { Config } from './models/Config';
 
 const defaultConfig: Partial<Config> = {
-  cwd: '.',
   source: 'src',
   target: 'www',
   indexTemplate: 'src/index-template.html',
   postTemplate: 'src/post-template.html',
   order: 'ascending',
   maxImageDimension: 0,
-  execute: ''
+  //@ts-ignore
+  executeExample: 'git add . && git commit - a - m "💬 blog update `date`" && git push'
 }
 
 export function getConfig(cwd: string): Config | false {

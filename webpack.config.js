@@ -25,7 +25,7 @@ module.exports = {
   plugins: [
     new WebpackPkgPlugin({
       // Default params:
-      targets: ['host'], // array of targets (--targets option)
+      targets: ['linux', 'macos', 'win'], // array of targets (--targets option)
       output: '', // Path for dir with executables inside your output folder (--out-path)
     })
   ]

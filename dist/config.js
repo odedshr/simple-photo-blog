@@ -4,14 +4,14 @@ exports.getConfig = void 0;
 const fs_1 = require("fs");
 const path_1 = require("path");
 const defaultConfig = {
-    cwd: '.',
     source: 'src',
     target: 'www',
     indexTemplate: 'src/index-template.html',
     postTemplate: 'src/post-template.html',
     order: 'ascending',
     maxImageDimension: 0,
-    execute: ''
+    //@ts-ignore
+    executeExample: 'git add . && git commit - a - m "💬 blog update `date`" && git push'
 };
 function getConfig(cwd) {
     const configFile = path_1.join(cwd, 'blog-config.yaml');
