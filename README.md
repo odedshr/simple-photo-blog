@@ -1,5 +1,7 @@
 # Simple-photo-blog
 
+[![Build Status](https://travis-ci.com/odedshr/simple-photo-blog.svg?branch=main)](https://travis-ci.com/odedshr/simple-photo-blog)
+
 Simple-photo-blog allows you to create a super easy to update static-server blog: copy your photo and double-click the app to upload.
 
 Why is it useful?
@@ -20,7 +22,7 @@ For contributing to the development, fork the [GitHub repository](https://github
 Add the following line to you `package.json`, at the `scripts` section:
 
 ```json
-  'upload': 'node node_modules/simple-photo-blog/dist/index'
+  'upload': './upload-blog'
 ```
 
 and then run:
@@ -29,7 +31,7 @@ and then run:
   npm run upload
 ```
 
-Alternatively you can download the executables for MAC, Windows or Linux; place the file in your project root folder and run it from there.
+Alternatively you can download the executables for [Mac](https://github.com/odedshr/simple-photo-blog/raw/distros/distros/1.0.3/mac/upload), [Windows](https://github.com/odedshr/simple-photo-blog/raw/distros/distros/1.0.3/windows/upload.exe) or [Linux](https://github.com/odedshr/simple-photo-blog/raw/distros/distros/1.0.3/linux/upload); place the file in your project root folder and run it from there.
 
 ## Uploading a post
 
