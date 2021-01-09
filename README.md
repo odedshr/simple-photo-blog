@@ -22,7 +22,7 @@ For contributing to the development, fork the [GitHub repository](https://github
 Add the following line to you `package.json`, at the `scripts` section:
 
 ```json
-  'upload': './upload-blog'
+  'upload': 'upload-blog'
 ```
 
 and then run:
