@@ -25,7 +25,8 @@
     "src/tests/04-render-index.test.ts",
     "src/tests/05-update-version.test.ts",
     "src/tests/06-execute.test.ts",
-    "src/tests/07-simple-photo-blog.test.ts"
+    "src/tests/07-process-post.test.ts",
+    "src/tests/08-simple-photo-blog.test.ts"
   ],
   "exclude": [
     "dist"

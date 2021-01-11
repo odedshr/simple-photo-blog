@@ -38,14 +38,13 @@ describe('Config', () => {
     unmuteConsole(origConsole);
 
     assert.ok(existsSync(configFile));
-    assert.strictEqual(readFileSync(configFile, 'utf-8'), `cwd: .
-source: src
+    assert.strictEqual(readFileSync(configFile, 'utf-8'), `source: src
 target: www
 indexTemplate: src/index-template.html
 postTemplate: src/post-template.html
 order: ascending
 maxImageDimension: 0
-execute: `);
+executeExample: git add . && git commit - a - m "💬 blog update \`date\`" && git push`);
   });
 
   it('should return false if source folder not exists', () => {
