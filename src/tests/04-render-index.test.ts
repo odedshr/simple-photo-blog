@@ -42,7 +42,7 @@ describe('Render Index', () => {
 
     assert.strictEqual(result, `[
   <li class="post">
-    <a href="slug1" class="post_picture">
+    <a href="slug1" class="post_hero">
   <figure class="post_picture">
     <img class="post_image" src="slug1/image1.jpg" alt="image1"/>
   </figure></a>
@@ -52,7 +52,7 @@ describe('Render Index', () => {
   </li>
 
   <li class="post">
-    <a href="slug2" class="post_picture">
+    <a href="slug2" class="post_hero">
   <video class="post_video" controls>
     <source src="slug2/movie1.mov" type="video/mp4">
     😢 Your browser does not support the video tag.
