@@ -3,11 +3,10 @@ export type PostElement = {
   link: string,
   caption?: string;
   alt?: string;
-  source?: string;
 }
 
 export type Post = {
-  folder: string;
+  source: string;
   modified: Date;
   title: string;
   slug: string;

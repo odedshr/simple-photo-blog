@@ -19,9 +19,8 @@ const render_post_1 = require("./render-post");
 const JIMP = (!Jimp.read && Jimp.default) ? Jimp.default : Jimp;
 function processPost(postTemplate, blogTitle, sourcePath, targetPath, maxImageDimension, expirationDate, post) {
     return __awaiter(this, void 0, void 0, function* () {
-        const { slug, folder } = post;
+        const { slug, source } = post;
         try {
-            const source = `${sourcePath}/${folder}`;
             const target = `${targetPath}/${slug}`;
             const postFile = `${target}/index.html`;
             const folderRequiresUpdate = isFolderRequireUpdate(source, target, expirationDate);

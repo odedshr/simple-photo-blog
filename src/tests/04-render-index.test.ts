@@ -4,7 +4,7 @@ import { renderIndex } from '../render-index';
 describe('Render Index', () => {
   it('should render index page template', async () => {
     const result = renderIndex('', '', [{
-      folder: '',
+      source: '',
       modified: new Date(2020, 1, 1),
       title: 'title1',
       slug: 'slug1',
@@ -19,7 +19,7 @@ describe('Render Index', () => {
   it('should render index page template', async () => {
     const result = renderIndex('[<!-- blogTitle -->:<!-- content -->]', 'blogTitle', [
       {
-        folder: '',
+        source: '',
         modified: new Date(2020, 1, 1),
         title: 'title1',
         slug: 'slug1',
@@ -29,7 +29,7 @@ describe('Render Index', () => {
         attachments: [{ type: 'image', link: 'image1.jpg', alt: 'image1' }]
       },
       {
-        folder: '',
+        source: '',
         modified: new Date(2020, 1, 1),
         title: 'title2',
         slug: 'slug2',
@@ -54,7 +54,7 @@ describe('Render Index', () => {
   <li class="post">
     <a href="slug2" class="post_hero">
   <video class="post_video" controls>
-    <source src="slug2/movie1.mov" type="video/mp4">
+    <source src="slug2/movie1.mov" type="video/mov">
     😢 Your browser does not support the video tag.
   </video></a>
     <a class="post_title" href="slug2">title2</a>

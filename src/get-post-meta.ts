@@ -22,7 +22,7 @@ export function getPostMeta(parent: string, folder: string): Post {
   const attachments = items
     .filter(item => item.type === 'image' || item.type === 'video');
   const captionFiles = filterCaptionElements(items, attachments);
-  const captionContent = getCaptionMap(captionFiles);
+  const captionContent = getCaptionMap(source, captionFiles);
   const itemsWithoutCaptions = items
     .filter(item => !captionFiles.includes(item))
     .map(item => ({ ...item, caption: captionContent[item.link] }));
@@ -30,7 +30,7 @@ export function getPostMeta(parent: string, folder: string): Post {
   const modified = lstatSync(source).mtime
 
   return {
-    folder,
+    source,
     modified,
     title: folder.replace(tagsPattern, '').replace(pubDatePattern, '').trim(),
     slug: getSafeSlug(folder),
@@ -63,11 +63,11 @@ function filterCaptionElements(items: PostElement[], attachments: PostElement[])
     );
 }
 
-function getCaptionMap(items: PostElement[]) {
+function getCaptionMap(folder: string, items: PostElement[]) {
   const captions: { [key: string]: string } = {};
 
   items.forEach(item => {
-    captions[item.link.substr(0, item.link.lastIndexOf('.'))] = item.source ? getTextContent(item.source) : '';
+    captions[item.link.substr(0, item.link.lastIndexOf('.'))] = getTextContent(join(folder, item.link));
   });
 
   return captions
@@ -87,24 +87,16 @@ function toPostElements(source: string, link: string): PostElement {
       type: 'image',
       alt: link.substr(0, link.lastIndexOf('.')).replace(/^\d+\s+/, '')
     };
-  } else if (isFileOfType(link, videoFileTypes)) {
-    return {
-      link,
-      type: 'video',
-    };
-  }
-  else if (link.match(/\.video\.txt$/)) {
+  } else if (link.match(/\.video\.txt$/)) {
     return {
       link: readFileSync(join(source, link), 'utf-8'),
       type: 'video',
     };
+  } else if (isFileOfType(link, videoFileTypes)) {
+    return { link, type: 'video' };
   }
 
-  return {
-    link,
-    type: 'text',
-    source: join(source, link)
-  };
+  return { link, type: 'text' };
 }
 
 function formatDate(date: Date) {
@@ -118,18 +110,18 @@ function getDateFromName(name: string) {
 
 export function getPostContent(post: Post): string {
   return post.items
-    .map(item => getItemContent(item))
+    .map(item => getItemContent(item, post.source))
     .join('\n')
 }
 
-export function getItemContent(item: PostElement, slug?: string) {
+export function getItemContent(item: PostElement, folder: string, slug?: string) {
   if (item.type === 'image') {
     return getImageTag(item, slug);
   } else if (item.type === 'video') {
     return getVideoTag(item, slug);
   }
 
-  return `<div class="post_text">${getTextContent(join(item.source || ''))}</div>`;
+  return `<div class="post_text">${getTextContent(join(folder, item.link))}</div>`;
 }
 
 function getImageTag(element: PostElement, slug?: string) {
@@ -141,13 +133,18 @@ function getImageTag(element: PostElement, slug?: string) {
   </figure>`;
 }
 
-export function getVideoTag(element: PostElement, slug?: string) {
-  const link = (slug && element.link.indexOf('//') === -1) ? `${slug}/${element.link}` : element.link
-  return `
-  <video class="post_video" controls>
-    <source src="${link}" type="video/mp4">
-    😢 Your browser does not support the video tag.
-  </video>`;
+function getVideoTag(element: PostElement, slug?: string) {
+  const link = (slug && element.link.indexOf('//') === -1) ? `${slug}/${element.link}` : element.link;
+
+  if (link.indexOf('www.youtube.com') > -1) {
+    return getYouTubeTag(link);
+  }
+
+  if (link.indexOf('vimeo.com') > -1) {
+    return getVimeoTag(link);
+  }
+
+  return getVideoTagText(link);
 }
 
 function getTextContent(file: string) {
@@ -160,11 +157,45 @@ function getTextContent(file: string) {
   }
 }
 
+function getYouTubeTag(link: string) {
+  const match = link.match(/http(?:s?):\/\/(?:www\.)?youtu(?:be\.com\/watch\?v=|\.be\/)([\w\-\_]*)(&(amp;)?[\w\?‌​=]*)?/);
+  const revisedLink = !match ? link : `https://www.youtube.com/embed/${match[1]}${match[2] ? match[2].replace(/^&(amp;)?/, '?') : ''}`;
+
+  return `
+  <iframe class="post_video"
+    src ="${revisedLink}"
+    frameborder="0"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+    allowfullscreen></iframe>`;
+}
+
+function getVimeoTag(link: string) {
+  const videoID = link.split('/').pop();
+  return `
+  <iframe class="post_video"
+    src="https://player.vimeo.com/video/${videoID}"
+    frameborder = "0"
+    allow = "autoplay; fullscreen"
+    allowfullscreen> </iframe>`;
+}
+
+function getVideoTagText(link: string) {
+  return `
+  <video class="post_video" controls>
+    <source src="${link}" type="video/${getFileExtension(link)}">
+    😢 Your browser does not support the video tag.
+  </video>`
+}
+
 function getFileType(file: string) {
   if (file.toLowerCase().match(/\.video\.txt$/)) {
     return 'video.txt';
   }
 
+  return getFileExtension(file);
+}
+
+function getFileExtension(file: string) {
   return extname(file).substr(1).toLowerCase();
 }
 

@@ -5,7 +5,7 @@ describe('Render Post', () => {
 
   it('should render post page template with hashtags nor content', async () => {
     const result = renderPost('[<!-- blogTitle -->, <!-- title -->, <!-- content --> <!-- pubDate --> <!-- tags -->]', 'blogTitle', {
-      folder: '',
+      source: '',
       modified: new Date(2020, 1, 1),
       title: 'title1',
       slug: 'slug1',
@@ -20,7 +20,7 @@ describe('Render Post', () => {
 
   it('should render post page template with content and hashtags', async () => {
     const result = renderPost('[<!-- title -->, <!-- content --> <!-- pubDate --> <!-- tags -->]', '', {
-      folder: '',
+      source: '',
       modified: new Date(2020, 1, 1),
       title: 'title2',
       slug: 'slug2',

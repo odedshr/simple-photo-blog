@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.distinctSlugs = exports.isFileOfType = exports.getVideoTag = exports.getItemContent = exports.getPostContent = exports.getPostMeta = exports.imageFileTypes = exports.videoFileTypes = void 0;
+exports.distinctSlugs = exports.isFileOfType = exports.getItemContent = exports.getPostContent = exports.getPostMeta = exports.imageFileTypes = exports.videoFileTypes = void 0;
 const fs_1 = require("fs");
 const path_1 = require("path");
 //@ts-ignore as @types remarkable throws compilation errors regarding EOL highlight.js
@@ -18,14 +18,14 @@ function getPostMeta(parent, folder) {
     const attachments = items
         .filter(item => item.type === 'image' || item.type === 'video');
     const captionFiles = filterCaptionElements(items, attachments);
-    const captionContent = getCaptionMap(captionFiles);
+    const captionContent = getCaptionMap(source, captionFiles);
     const itemsWithoutCaptions = items
         .filter(item => !captionFiles.includes(item))
         .map(item => (Object.assign(Object.assign({}, item), { caption: captionContent[item.link] })));
     const attachmentsWithCaptions = attachments.map(item => (Object.assign(Object.assign({}, item), { caption: captionContent[item.link] })));
     const modified = fs_1.lstatSync(source).mtime;
     return {
-        folder,
+        source,
         modified,
         title: folder.replace(tagsPattern, '').replace(pubDatePattern, '').trim(),
         slug: getSafeSlug(folder),
@@ -52,10 +52,10 @@ function filterCaptionElements(items, attachments) {
         .filter(item => !images.includes(item.link) &&
         images.includes(item.link.substr(0, item.link.lastIndexOf('.'))));
 }
-function getCaptionMap(items) {
+function getCaptionMap(folder, items) {
     const captions = {};
     items.forEach(item => {
-        captions[item.link.substr(0, item.link.lastIndexOf('.'))] = item.source ? getTextContent(item.source) : '';
+        captions[item.link.substr(0, item.link.lastIndexOf('.'))] = getTextContent(path_1.join(folder, item.link));
     });
     return captions;
 }
@@ -73,23 +73,16 @@ function toPostElements(source, link) {
             alt: link.substr(0, link.lastIndexOf('.')).replace(/^\d+\s+/, '')
         };
     }
-    else if (isFileOfType(link, exports.videoFileTypes)) {
-        return {
-            link,
-            type: 'video',
-        };
-    }
     else if (link.match(/\.video\.txt$/)) {
         return {
             link: fs_1.readFileSync(path_1.join(source, link), 'utf-8'),
             type: 'video',
         };
     }
-    return {
-        link,
-        type: 'text',
-        source: path_1.join(source, link)
-    };
+    else if (isFileOfType(link, exports.videoFileTypes)) {
+        return { link, type: 'video' };
+    }
+    return { link, type: 'text' };
 }
 function formatDate(date) {
     return date.toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
@@ -100,18 +93,18 @@ function getDateFromName(name) {
 }
 function getPostContent(post) {
     return post.items
-        .map(item => getItemContent(item))
+        .map(item => getItemContent(item, post.source))
         .join('\n');
 }
 exports.getPostContent = getPostContent;
-function getItemContent(item, slug) {
+function getItemContent(item, folder, slug) {
     if (item.type === 'image') {
         return getImageTag(item, slug);
     }
     else if (item.type === 'video') {
         return getVideoTag(item, slug);
     }
-    return `<div class="post_text">${getTextContent(path_1.join(item.source || ''))}</div>`;
+    return `<div class="post_text">${getTextContent(path_1.join(folder, item.link))}</div>`;
 }
 exports.getItemContent = getItemContent;
 function getImageTag(element, slug) {
@@ -124,13 +117,14 @@ function getImageTag(element, slug) {
 }
 function getVideoTag(element, slug) {
     const link = (slug && element.link.indexOf('//') === -1) ? `${slug}/${element.link}` : element.link;
-    return `
-  <video class="post_video" controls>
-    <source src="${link}" type="video/mp4">
-    😢 Your browser does not support the video tag.
-  </video>`;
+    if (link.indexOf('www.youtube.com') > -1) {
+        return getYouTubeTag(link);
+    }
+    if (link.indexOf('vimeo.com') > -1) {
+        return getVimeoTag(link);
+    }
+    return getVideoTagText(link);
 }
-exports.getVideoTag = getVideoTag;
 function getTextContent(file) {
     const content = fs_1.readFileSync(`${file}`, 'utf-8');
     switch (getFileType(file)) {
@@ -140,10 +134,39 @@ function getTextContent(file) {
         case 'txt': return content;
     }
 }
+function getYouTubeTag(link) {
+    const match = link.match(/http(?:s?):\/\/(?:www\.)?youtu(?:be\.com\/watch\?v=|\.be\/)([\w\-\_]*)(&(amp;)?[\w\?‌​=]*)?/);
+    const revisedLink = !match ? link : `https://www.youtube.com/embed/${match[1]}${match[2] ? match[2].replace(/^&(amp;)?/, '?') : ''}`;
+    return `
+  <iframe class="post_video"
+    src ="${revisedLink}"
+    frameborder="0"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+    allowfullscreen></iframe>`;
+}
+function getVimeoTag(link) {
+    const videoID = link.split('/').pop();
+    return `
+  <iframe class="post_video"
+    src="https://player.vimeo.com/video/${videoID}"
+    frameborder = "0"
+    allow = "autoplay; fullscreen"
+    allowfullscreen> </iframe>`;
+}
+function getVideoTagText(link) {
+    return `
+  <video class="post_video" controls>
+    <source src="${link}" type="video/${getFileExtension(link)}">
+    😢 Your browser does not support the video tag.
+  </video>`;
+}
 function getFileType(file) {
     if (file.toLowerCase().match(/\.video\.txt$/)) {
         return 'video.txt';
     }
+    return getFileExtension(file);
+}
+function getFileExtension(file) {
     return path_1.extname(file).substr(1).toLowerCase();
 }
 function isFileOfType(file, types) {

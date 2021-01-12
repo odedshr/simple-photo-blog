@@ -49,7 +49,7 @@ function getPost(): Post {
   return {
     modified: new Date(),
     slug: 'slug',
-    folder: 'folder',
+    source: 'source',
     title: 'title',
     pubDate: 'pubDate',
     tags: [],

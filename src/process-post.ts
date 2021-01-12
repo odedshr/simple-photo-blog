@@ -18,10 +18,9 @@ export async function processPost(
   expirationDate: Date,
   post: Post
 ): Promise<Post> {
-  const { slug, folder } = post;
+  const { slug, source } = post;
 
   try {
-    const source = `${sourcePath}/${folder}`;
     const target = `${targetPath}/${slug}`;
     const postFile = `${target}/index.html`;
     const folderRequiresUpdate = isFolderRequireUpdate(source, target, expirationDate);
