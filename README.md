@@ -31,7 +31,7 @@ and then run:
   npm run upload
 ```
 
-Alternatively you can download the executables for [Mac](https://github.com/odedshr/simple-photo-blog/raw/distros/distros/1.0.3/mac/upload), [Windows](https://github.com/odedshr/simple-photo-blog/raw/distros/distros/1.0.3/windows/upload.exe) or [Linux](https://github.com/odedshr/simple-photo-blog/raw/distros/distros/1.0.3/linux/upload); place the file in your project root folder and run it from there.
+Alternatively you can download the executables for [Mac](https://github.com/odedshr/simple-photo-blog/raw/distros/distros/1.0.5/upload-mac.zip), [Windows](https://github.com/odedshr/simple-photo-blog/raw/distros/distros/1.0.5/upload-win.zip) or [Linux](https://github.com/odedshr/simple-photo-blog/raw/distros/distros/1.0.5/upload-linux.zip); place the file in your project root folder and run it from there.
 
 ## Uploading a post
 

@@ -34,10 +34,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added bin:cli.js
 - Added multiple package outputs
 
-## [1.0.3] - 2020-01-11
+## [1.0.4] - 2020-01-11
 
 ### Fixed
 
 - Fixed mistakes in README
 - Fixed Jimp.read not found in standalone
 - Catching error while processing posts
+
+
+## [1.0.5] - 2020-01-11
+
+### Added
+
+- Added support for youtube and vimeo links
+- Added blogTitle in config file
+- Added distinctSlug
+
+### Fixed
+- rename class a.post_picture to a._post_banner
