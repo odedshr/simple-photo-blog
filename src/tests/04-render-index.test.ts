@@ -3,7 +3,7 @@ import { renderIndex } from '../render-index';
 
 describe('Render Index', () => {
   it('should render index page template', async () => {
-    const result = renderIndex('', [{
+    const result = renderIndex('', '', [{
       folder: '',
       modified: new Date(2020, 1, 1),
       title: 'title1',
@@ -17,7 +17,7 @@ describe('Render Index', () => {
   });
 
   it('should render index page template', async () => {
-    const result = renderIndex('[<!-- content -->]', [
+    const result = renderIndex('[<!-- blogTitle -->:<!-- content -->]', 'blogTitle', [
       {
         folder: '',
         modified: new Date(2020, 1, 1),
@@ -40,7 +40,7 @@ describe('Render Index', () => {
       }
     ]);
 
-    assert.strictEqual(result, `[
+    assert.strictEqual(result, `[blogTitle:
   <li class="post">
     <a href="slug1" class="post_hero">
   <figure class="post_picture">

@@ -4,6 +4,7 @@ exports.getConfig = void 0;
 const fs_1 = require("fs");
 const path_1 = require("path");
 const defaultConfig = {
+    blogTitle: 'My Photo Blog',
     source: 'src',
     target: 'www',
     indexTemplate: 'src/index-template.html',
@@ -24,6 +25,7 @@ function getConfig(cwd) {
     const indexTemplate = path_1.join(cwd, config.indexTemplate);
     const postTemplate = path_1.join(cwd, config.postTemplate);
     config = {
+        blogTitle: config.blogTitle || 'My photo blog',
         modified: new Date(),
         cwd,
         source: path_1.join(cwd, config.source),

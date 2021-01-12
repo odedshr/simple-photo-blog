@@ -17,7 +17,7 @@ const get_post_meta_1 = require("./get-post-meta");
 const render_post_1 = require("./render-post");
 //@ts-ignore
 const JIMP = (!Jimp.read && Jimp.default) ? Jimp.default : Jimp;
-function processPost(postTemplate, sourcePath, targetPath, maxImageDimension, expirationDate, post) {
+function processPost(postTemplate, blogTitle, sourcePath, targetPath, maxImageDimension, expirationDate, post) {
     return __awaiter(this, void 0, void 0, function* () {
         const { slug, folder } = post;
         try {
@@ -36,7 +36,7 @@ function processPost(postTemplate, sourcePath, targetPath, maxImageDimension, ex
             yield copyPostAttachments(post.attachments, source, target, maxImageDimension);
             if (!postModifyTime || postModifyTime > expirationDate) {
                 const content = get_post_meta_1.getPostContent(post);
-                fs_1.writeFileSync(`${target}/index.html`, render_post_1.renderPost(postTemplate, post, content), 'utf-8');
+                fs_1.writeFileSync(`${target}/index.html`, render_post_1.renderPost(postTemplate, blogTitle, post, content), 'utf-8');
             }
         }
         catch (err) {

@@ -38,7 +38,8 @@ describe('Config', () => {
     unmuteConsole(origConsole);
 
     assert.ok(existsSync(configFile));
-    assert.strictEqual(readFileSync(configFile, 'utf-8'), `source: src
+    assert.strictEqual(readFileSync(configFile, 'utf-8'), `blogTitle: My Photo Blog
+source: src
 target: www
 indexTemplate: src/index-template.html
 postTemplate: src/post-template.html
@@ -55,12 +56,13 @@ executeExample: git add . && git commit - a - m "💬 blog update \`date\`" && g
 
   it('should read config file and return it', () => {
     mkdirSync(fullPathConfig.src);
-    writeFileSync(configFile, `source: ${simpleConfig.source}
-    target: www
-    indexTemplate: src/index-template.html
-    this line is bad because it has no colons
-    postTemplate: src/post-template.html
-          `, 'utf-8');
+    writeFileSync(configFile, `blogTitle: blog-title
+source: ${simpleConfig.source}
+target: www
+indexTemplate: src/index-template.html
+this line is bad because it has no colons
+postTemplate: src/post-template.html
+      `, 'utf-8');
 
     const origConsole = muteConsole();
     const config = getConfig(__dirname);
@@ -69,7 +71,8 @@ executeExample: git add . && git commit - a - m "💬 blog update \`date\`" && g
     if (!config) {
       assert.fail('failed to load config');
     }
-    assert.ok(config.source === fullPathConfig.src);
+    assert.strictEqual(config.blogTitle, 'blog-title')
+    assert.strictEqual(config.source, fullPathConfig.src);
   });
 
   it('should create missing required files', () => {

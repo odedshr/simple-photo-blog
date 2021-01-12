@@ -17,7 +17,7 @@ describe('Process Post', () => {
     const originConsole = muteConsole();
     const post = getPost();
     const originalPostContent = JSON.stringify(post);
-    const newPost = await processPost('template', 'source', 'target', 0, new Date(), post);
+    const newPost = await processPost('template', 'blogTitle', 'source', 'target', 0, new Date(), post);
     unmuteConsole(originConsole);
     assert.strictEqual(originalPostContent, JSON.stringify(newPost))
   });
@@ -28,7 +28,7 @@ describe('Process Post', () => {
     console.error = (...data: any[]) => { errorMessage = data[0]; };
     const post = getPost();
     const originalPostContent = JSON.stringify(post);
-    const newPost = await processPost('template', 'source', 'target', 0, new Date(), post);
+    const newPost = await processPost('template', 'blogTitle', 'source', 'target', 0, new Date(), post);
     unmuteConsole(originConsole);
     assert.ok(errorMessage.indexOf(`no such file or directory, mkdir 'target/slug'`) > -1);
   });
@@ -39,7 +39,7 @@ describe('Process Post', () => {
     const originConsole = muteConsole();
     const post = getPost();
     const originalPostContent = JSON.stringify(post);
-    const newPost = await processPost('template', 'source', 'target', 0, new Date(), post);
+    const newPost = await processPost('template', 'blogTitle', 'source', 'target', 0, new Date(), post);
     unmuteConsole(originConsole);
     assert.strictEqual(originalPostContent, JSON.stringify(newPost))
   });

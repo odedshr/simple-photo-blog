@@ -12,6 +12,7 @@ export async function compile(config: Config) {
   const postTemplate = readFileSync(config.postTemplate, 'utf-8');
   const templateModified = lstatSync(config.postTemplate).mtime
   const lastModify = new Date(Math.max(templateModified.getTime(), config.modified.getTime()));
+  const { blogTitle, source, target, maxImageDimension } = config;
 
   const posts: Post[] = distinctSlugs(
     getPostList(config.source, config.order === 'ascending')
@@ -21,13 +22,13 @@ export async function compile(config: Config) {
 
   await Promise.all(
     posts.map(
-      async post => processPost(postTemplate, config.source, config.target, config.maxImageDimension, lastModify, post)
+      async post => processPost(postTemplate, blogTitle, source, target, maxImageDimension, lastModify, post)
     )
   );
 
   writeFileSync(
     `${config.target}/index.html`,
-    renderIndex(readFileSync(config.indexTemplate, 'utf-8'), posts),
+    renderIndex(readFileSync(config.indexTemplate, 'utf-8'), config.blogTitle, posts),
     'utf-8'
   );
 

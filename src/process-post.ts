@@ -11,6 +11,7 @@ const JIMP: JimpConstructors = (!Jimp.read && Jimp.default) ? Jimp.default : Jim
 
 export async function processPost(
   postTemplate: string,
+  blogTitle: string,
   sourcePath: string,
   targetPath: string,
   maxImageDimension: number,
@@ -42,7 +43,7 @@ export async function processPost(
 
       writeFileSync(
         `${target}/index.html`,
-        renderPost(postTemplate, post, content),
+        renderPost(postTemplate, blogTitle, post, content),
         'utf-8'
       );
     }

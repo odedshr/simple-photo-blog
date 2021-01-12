@@ -3,8 +3,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.renderIndex = void 0;
 const get_post_meta_1 = require("./get-post-meta");
 const contentPlaceholder = /<!-- content -->/;
-function renderIndex(template, posts) {
+const titlePlaceholder = /<!-- blogTitle -->/g;
+function renderIndex(template, blogTitle, posts) {
     return (template || '')
+        .replace(titlePlaceholder, blogTitle)
         .replace(contentPlaceholder, posts.map(({ slug, attachments, title, pubDate, tags }) => `
   <li class="post">
     <a href="${slug}" class="post_hero">${get_post_meta_1.getItemContent(attachments[0], slug)}</a>

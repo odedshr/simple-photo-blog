@@ -2,9 +2,11 @@ import { Post } from './models/Post';
 import { getItemContent } from './get-post-meta';
 
 const contentPlaceholder = /<!-- content -->/;
+const titlePlaceholder = /<!-- blogTitle -->/g;
 
-export function renderIndex(template: string, posts: Post[]) {
+export function renderIndex(template: string, blogTitle: string, posts: Post[]) {
   return (template || '')
+    .replace(titlePlaceholder, blogTitle)
     .replace(
       contentPlaceholder,
       posts.map(({ slug, attachments, title, pubDate, tags }) => `

@@ -4,6 +4,7 @@ import { join } from 'path';
 import { Config } from './models/Config';
 
 const defaultConfig: Partial<Config> = {
+  blogTitle: 'My Photo Blog',
   source: 'src',
   target: 'www',
   indexTemplate: 'src/index-template.html',
@@ -28,6 +29,7 @@ export function getConfig(cwd: string): Config | false {
   const postTemplate = join(cwd, config.postTemplate)
 
   config = {
+    blogTitle: config.blogTitle || 'My photo blog',
     modified: new Date(),
     cwd,
     source: join(cwd, config.source),

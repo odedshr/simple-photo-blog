@@ -1,5 +1,6 @@
 export declare type Config = {
     modified: Date;
+    blogTitle: string;
     source: string;
     target: string;
     indexTemplate: string;

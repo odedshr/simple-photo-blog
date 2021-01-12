@@ -4,7 +4,7 @@ import { renderPost } from '../render-post';
 describe('Render Post', () => {
 
   it('should render post page template with hashtags nor content', async () => {
-    const result = renderPost('[<!-- title -->, <!-- content --> <!-- pubDate --> <!-- tags -->]', {
+    const result = renderPost('[<!-- blogTitle -->, <!-- title -->, <!-- content --> <!-- pubDate --> <!-- tags -->]', 'blogTitle', {
       folder: '',
       modified: new Date(2020, 1, 1),
       title: 'title1',
@@ -15,11 +15,11 @@ describe('Render Post', () => {
       attachments: [{ type: 'image', link: 'image1.jpg', alt: 'image1' }]
     }, '');
 
-    assert.strictEqual(result, '[title1,  pubDate1 ]');
+    assert.strictEqual(result, '[blogTitle, title1,  pubDate1 ]');
   });
 
   it('should render post page template with content and hashtags', async () => {
-    const result = renderPost('[<!-- title -->, <!-- content --> <!-- pubDate --> <!-- tags -->]', {
+    const result = renderPost('[<!-- title -->, <!-- content --> <!-- pubDate --> <!-- tags -->]', '', {
       folder: '',
       modified: new Date(2020, 1, 1),
       title: 'title2',
