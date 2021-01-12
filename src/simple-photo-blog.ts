@@ -1,6 +1,6 @@
 import { readdirSync, lstatSync, writeFileSync, readFileSync } from 'fs';
 
-import { getPostMeta } from './get-post-meta';
+import { getPostMeta, distinctSlugs } from './get-post-meta';
 import { processPost } from './process-post';
 import { renderIndex } from './render-index';
 import { execute } from './execute';
@@ -13,9 +13,11 @@ export async function compile(config: Config) {
   const templateModified = lstatSync(config.postTemplate).mtime
   const lastModify = new Date(Math.max(templateModified.getTime(), config.modified.getTime()));
 
-  const posts: Post[] = getPostList(config.source, config.order === 'ascending')
-    .map(getPostMeta.bind(null, config.source))
-    .filter(post => post.attachments.length);
+  const posts: Post[] = distinctSlugs(
+    getPostList(config.source, config.order === 'ascending')
+      .map(getPostMeta.bind(null, config.source))
+      .filter(post => post.attachments.length)
+  );
 
   await Promise.all(
     posts.map(

@@ -6,3 +6,4 @@ export declare function getPostContent(post: Post): string;
 export declare function getItemContent(item: PostElement, slug?: string): string;
 export declare function getVideoTag(element: PostElement, slug?: string): string;
 export declare function isFileOfType(file: string, types: string[]): boolean;
+export declare function distinctSlugs(posts: Post[]): Post[];

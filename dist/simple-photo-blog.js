@@ -21,9 +21,9 @@ function compile(config) {
         const postTemplate = fs_1.readFileSync(config.postTemplate, 'utf-8');
         const templateModified = fs_1.lstatSync(config.postTemplate).mtime;
         const lastModify = new Date(Math.max(templateModified.getTime(), config.modified.getTime()));
-        const posts = getPostList(config.source, config.order === 'ascending')
+        const posts = get_post_meta_1.distinctSlugs(getPostList(config.source, config.order === 'ascending')
             .map(get_post_meta_1.getPostMeta.bind(null, config.source))
-            .filter(post => post.attachments.length);
+            .filter(post => post.attachments.length));
         yield Promise.all(posts.map((post) => __awaiter(this, void 0, void 0, function* () { return process_post_1.processPost(postTemplate, config.source, config.target, config.maxImageDimension, lastModify, post); })));
         fs_1.writeFileSync(`${config.target}/index.html`, render_index_1.renderIndex(fs_1.readFileSync(config.indexTemplate, 'utf-8'), posts), 'utf-8');
         console.info(`\n ✅ Indexing complete for ${posts.length} posts`);

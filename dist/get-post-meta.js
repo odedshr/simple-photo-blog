@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.isFileOfType = exports.getVideoTag = exports.getItemContent = exports.getPostContent = exports.getPostMeta = exports.imageFileTypes = exports.videoFileTypes = void 0;
+exports.distinctSlugs = exports.isFileOfType = exports.getVideoTag = exports.getItemContent = exports.getPostContent = exports.getPostMeta = exports.imageFileTypes = exports.videoFileTypes = void 0;
 const fs_1 = require("fs");
 const path_1 = require("path");
 //@ts-ignore as @types remarkable throws compilation errors regarding EOL highlight.js
@@ -37,18 +37,20 @@ function getPostMeta(parent, folder) {
 }
 exports.getPostMeta = getPostMeta;
 function getSafeSlug(folder) {
-    return folder
-        .replace(tagsPattern, '')
-        .replace(/"/g, '”')
-        .trim()
-        .replace(/[\s|-]+/g, '-')
-        .toLowerCase();
+    const suggested = [folder
+            .replace(tagsPattern, '')
+            .replace(/"/g, '”')
+            .trim()
+            .replace(/[\s|-]+/g, '-')
+            .toLowerCase()];
+    let attempts = 0;
+    return suggested.join('-');
 }
 function filterCaptionElements(items, attachments) {
     const images = attachments.filter(item => item.type === 'image').map(item => item.link);
     return items
         .filter(item => !images.includes(item.link) &&
-            images.includes(item.link.substr(0, item.link.lastIndexOf('.'))));
+        images.includes(item.link.substr(0, item.link.lastIndexOf('.'))));
 }
 function getCaptionMap(items) {
     const captions = {};
@@ -148,4 +150,17 @@ function isFileOfType(file, types) {
     return types.indexOf(getFileType(file)) !== -1;
 }
 exports.isFileOfType = isFileOfType;
+function distinctSlugs(posts) {
+    let existing = {};
+    return posts.map(post => {
+        const slug = [post.slug];
+        let attempt = 0;
+        while (existing[slug.join('-')]) {
+            slug[1] = `${++attempt}`;
+        }
+        existing[slug.join('-')] = post;
+        return Object.assign(Object.assign({}, post), { slug: slug.join('-') });
+    });
+}
+exports.distinctSlugs = distinctSlugs;
 //# sourceMappingURL=get-post-meta.js.map

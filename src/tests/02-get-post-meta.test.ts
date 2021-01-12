@@ -2,8 +2,8 @@ import * as assert from 'assert';
 import { mkdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
 
-
-import { getPostMeta, getPostContent } from '../get-post-meta';
+import { getPostMeta, getPostContent, distinctSlugs } from '../get-post-meta';
+import { Post } from '../models/Post';
 import { deleteFolderRecursive } from './utils';
 
 let postName = '';
@@ -118,4 +118,17 @@ describe('getPostContent', () => {
     );
   });
 
+});
+
+describe('distinctSlugs', () => {
+  it('should provide distinct slugs', () => {
+    const getPost = (): Post => ({ slug: 'item', folder: '', modified: new Date(), title: '', items: [], attachments: [], tags: [], pubDate: '' });
+    const slugs = distinctSlugs([
+      getPost(),
+      getPost(),
+      getPost(),
+    ]).map(post => post.slug).join(',');
+
+    assert.strictEqual(slugs, 'item,item-1,item-2');
+  });
 });

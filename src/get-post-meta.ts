@@ -171,3 +171,19 @@ function getFileType(file: string) {
 export function isFileOfType(file: string, types: string[]) {
   return types.indexOf(getFileType(file)) !== -1;
 }
+
+export function distinctSlugs(posts: Post[]): Post[] {
+  let existing: { [key: string]: Post } = {};
+  return posts.map(post => {
+    const slug: string[] = [post.slug];
+    let attempt = 0;
+
+    while (existing[slug.join('-')]) {
+      slug[1] = `${++attempt}`;
+    }
+
+    existing[slug.join('-')] = post;
+
+    return { ...post, slug: slug.join('-') };
+  });
+}
