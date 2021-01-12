@@ -17,7 +17,7 @@ const get_post_meta_1 = require("./get-post-meta");
 const render_post_1 = require("./render-post");
 //@ts-ignore
 const JIMP = (!Jimp.read && Jimp.default) ? Jimp.default : Jimp;
-function processPost(postTemplate, blogTitle, sourcePath, targetPath, maxImageDimension, expirationDate, post) {
+function processPost(postTemplate, blogTitle, targetPath, maxImageDimension, expirationDate, post) {
     return __awaiter(this, void 0, void 0, function* () {
         const { slug, source } = post;
         try {
@@ -39,7 +39,7 @@ function processPost(postTemplate, blogTitle, sourcePath, targetPath, maxImageDi
             }
         }
         catch (err) {
-            console.error(` 🛑 Error processing post:\n${err}\n${JSON.stringify(post)}`);
+            console.error(` 🛑 Error processing post:\n${err}\n${JSON.stringify(post, null, 2)}`);
         }
         return post;
     });
@@ -63,7 +63,7 @@ function copyPostAttachments(attachments, source, target, maxImageDimension) {
     return __awaiter(this, void 0, void 0, function* () {
         const updates = yield Promise.all(attachments
             .map((attachment) => __awaiter(this, void 0, void 0, function* () {
-            if (attachment.link.match(/\.video\.txt$/)) {
+            if (attachment.link.indexOf('//') > -1) {
                 return 0;
             }
             const imageSource = path_1.join(source, attachment.link);

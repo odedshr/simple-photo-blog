@@ -53,3 +53,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - rename class a.post_picture to a._post_banner
+
+## [1.0.6] - 2020-01-11
+
+### Fixed
+- fixed issue copying video link files

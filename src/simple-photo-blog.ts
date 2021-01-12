@@ -22,7 +22,7 @@ export async function compile(config: Config) {
 
   await Promise.all(
     posts.map(
-      async post => processPost(postTemplate, blogTitle, source, target, maxImageDimension, lastModify, post)
+      async post => processPost(postTemplate, blogTitle, target, maxImageDimension, lastModify, post)
     )
   );
 

@@ -12,7 +12,6 @@ const JIMP: JimpConstructors = (!Jimp.read && Jimp.default) ? Jimp.default : Jim
 export async function processPost(
   postTemplate: string,
   blogTitle: string,
-  sourcePath: string,
   targetPath: string,
   maxImageDimension: number,
   expirationDate: Date,
@@ -48,7 +47,7 @@ export async function processPost(
     }
   }
   catch (err) {
-    console.error(` 🛑 Error processing post:\n${err}\n${JSON.stringify(post)}`);
+    console.error(` 🛑 Error processing post:\n${err}\n${JSON.stringify(post, null, 2)}`);
   }
 
 
@@ -76,7 +75,7 @@ function getFileModifyDate(file: string) {
 async function copyPostAttachments(attachments: PostElement[], source: string, target: string, maxImageDimension: number) {
   const updates = await Promise.all(attachments
     .map(async attachment => {
-      if (attachment.link.match(/\.video\.txt$/)) {
+      if (attachment.link.indexOf('//') > -1) {
         return 0;
       }
 
