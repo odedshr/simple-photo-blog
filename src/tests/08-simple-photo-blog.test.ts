@@ -1,5 +1,5 @@
 import * as assert from 'assert';
-import { mkdirSync, readFileSync, writeFileSync, copyFileSync, lstatSync, existsSync } from 'fs';
+import { mkdirSync, readFileSync, writeFileSync, copyFileSync, lstatSync, existsSync, readdirSync } from 'fs';
 import { join } from 'path';
 import { getConfig } from '../config';
 import { compile } from '../simple-photo-blog';
@@ -138,15 +138,13 @@ describe('Simple Photo Blog', () => {
       assert.fail('failed to load config');
     }
 
-    const posts = await compile(config);
+    await compile(config);
     unmuteConsole(origConsole);
     assert.ok(!existsSync(join(cwd, 'www', '2020-01-01-post-1', 'link.video.txt')));
   });
 
   it(`should resize images`, async function () {
     this.timeout(10000);
-
-    const origConsole = muteConsole();
 
     makePost(cwd, 'src', '2020-01-01 post-1');
     copyFileSync(join(__dirname, '../../src/tests/test-image.jpg'), join(cwd, 'src', '2020-01-01 post-1', 'image.jpg'));
@@ -157,8 +155,10 @@ describe('Simple Photo Blog', () => {
     }
 
     config.maxImageDimension = 300;
-    const posts = await compile(config);
+    const origConsole = muteConsole();
+    await compile(config);
     unmuteConsole(origConsole);
+
     assert.ok(existsSync(join(cwd, 'www', '2020-01-01-post-1', 'image.jpg')));
     assert.strictEqual(lstatSync(join(cwd, 'www', '2020-01-01-post-1', 'image.jpg')).size, 65101);
   });
@@ -174,16 +174,19 @@ describe('Simple Photo Blog', () => {
     if (!config) {
       assert.fail('failed to load config');
     }
+
     await compile(config);
     const staticDate = lstatSync(join(cwd, 'www', '2020-01-01-static')).mtime;
     const updatingDate = lstatSync(join(cwd, 'www', '2020-01-01-updating')).mtime;
 
     await wait(1000);
     writeFileSync(join(cwd, 'src', '2020-01-01 updating', 'image1.jpg'), 'y', 'utf-8');
-    await compile(config);
+    assert.notStrictEqual(updatingDate.getTime(), lstatSync(join(cwd, 'src', '2020-01-01 updating')).mtime.getTime());
 
+    await compile(config);
     unmuteConsole(origConsole);
-    assert.ok(staticDate.getTime() === lstatSync(join(cwd, 'www', '2020-01-01-static')).mtime.getTime());
+
+    assert.strictEqual(staticDate.getTime(), lstatSync(join(cwd, 'www', '2020-01-01-static')).mtime.getTime());
     assert.ok(updatingDate.getTime() < lstatSync(join(cwd, 'www', '2020-01-01-updating')).mtime.getTime());
   });
 

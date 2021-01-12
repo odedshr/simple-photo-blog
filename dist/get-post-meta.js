@@ -28,7 +28,7 @@ function getPostMeta(parent, folder) {
         folder,
         modified,
         title: folder.replace(tagsPattern, '').replace(pubDatePattern, '').trim(),
-        slug: folder.replace(tagsPattern, '').trim().replace(/\s/g, '-').toLowerCase(),
+        slug: getSafeSlug(folder),
         pubDate: getDateFromName(folder) || formatDate(modified),
         tags: folder.match(tagsPattern) || [],
         items: itemsWithoutCaptions,
@@ -36,11 +36,19 @@ function getPostMeta(parent, folder) {
     };
 }
 exports.getPostMeta = getPostMeta;
+function getSafeSlug(folder) {
+    return folder
+        .replace(tagsPattern, '')
+        .replace(/"/g, '”')
+        .trim()
+        .replace(/[\s|-]+/g, '-')
+        .toLowerCase();
+}
 function filterCaptionElements(items, attachments) {
     const images = attachments.filter(item => item.type === 'image').map(item => item.link);
     return items
         .filter(item => !images.includes(item.link) &&
-        images.includes(item.link.substr(0, item.link.lastIndexOf('.'))));
+            images.includes(item.link.substr(0, item.link.lastIndexOf('.'))));
 }
 function getCaptionMap(items) {
     const captions = {};

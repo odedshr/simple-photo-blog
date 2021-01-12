@@ -15,6 +15,7 @@ function getPostNameByTestIndex(index: number) {
     case 0: return 'sample-post';
     case 1: return '2020-01-01 sample-post';
     case 2: return '2020-01-01 sample-post #hashtag1 #hashtag2';
+    case 3: return '2020-01-01  abc--"abc" - abc';
     default:
       return 'sample-post';
   }
@@ -55,6 +56,11 @@ describe('getPostMeta', () => {
     const post = getPostMeta(__dirname, postName);
     assert.strictEqual(post.title, 'sample-post');
     assert.strictEqual(post.tags.join(' '), '#hashtag1 #hashtag2');
+  });
+
+  it('should provide safe slug', () => {
+    const post = getPostMeta(__dirname, postName);
+    assert.strictEqual(post.slug, '2020-01-01-abc-”abc”-abc');
   });
 
   it('should get image caption', () => {

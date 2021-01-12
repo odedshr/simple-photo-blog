@@ -1,4 +1,4 @@
-import { lstatSync, readdirSync, readFileSync } from 'fs';
+import { lstatSync, readdirSync, readFileSync, existsSync } from 'fs';
 import { extname, join } from 'path';
 //@ts-ignore as @types remarkable throws compilation errors regarding EOL highlight.js
 import { Remarkable } from 'remarkable';
@@ -33,12 +33,24 @@ export function getPostMeta(parent: string, folder: string): Post {
     folder,
     modified,
     title: folder.replace(tagsPattern, '').replace(pubDatePattern, '').trim(),
-    slug: folder.replace(tagsPattern, '').trim().replace(/\s/g, '-').toLowerCase(),
+    slug: getSafeSlug(folder),
     pubDate: getDateFromName(folder) || formatDate(modified),
     tags: folder.match(tagsPattern) || [],
     items: itemsWithoutCaptions,
     attachments: attachmentsWithCaptions
   };
+}
+
+function getSafeSlug(folder: string) {
+  const suggested = [folder
+    .replace(tagsPattern, '')
+    .replace(/"/g, '”')
+    .trim()
+    .replace(/[\s|-]+/g, '-')
+    .toLowerCase()];
+  let attempts = 0;
+
+  return suggested.join('-');
 }
 
 function filterCaptionElements(items: PostElement[], attachments: PostElement[]): PostElement[] {
