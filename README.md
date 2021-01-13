@@ -4,6 +4,8 @@
 
 Simple-photo-blog allows you to create a super easy to update static-server blog: copy your photo and double-click the app to upload.
 
+Check out the [live demo](https://odedshr.github.io/simple-photo-blog-example/).
+
 Why is it useful?
 Albeit setup might be slight tricky this would allow non-tech bloggers *easily* maintain a blog on a *free*-hosting service. Sure, there are plenty of Static-site generators that should do pretty much the same thing, but these will require the blogger to write `MarkDown` code which might not be trivial for everyone.
 
